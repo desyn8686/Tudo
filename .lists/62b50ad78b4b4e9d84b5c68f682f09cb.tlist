@@ -1,0 +1,23 @@
+@features - editor
+^Tudo
+#62b50ad78b4b4e9d84b5c68f682f09cb
+!oAuto select new task
+-oshould enter insert mode
+!oTurn core.py into functional class
+-okeep handler in same file
+!oFigure out whey it snaps to tag line after popup or added expan
+-oprolly because it deletes and readds
+!oCreate tutorial list that is added on some command
+!oVisual for input/nav mode
+-obright color for input mode
+!oRe-ordering of tasks
+-xre-ordering on delete
+-ore-orderingn on command
+!oTutorial list
+!oVisual for when task has expan
+-o* should work
+!omake 'x' into delete char
+-omove 'strike' to enter or space
+!oSchedule remider for tasks with cron or at
+-oway to set DO BY date on tasks
+!oSet expan line mode to 'clip'

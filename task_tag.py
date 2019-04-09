@@ -59,7 +59,7 @@ class TaskTag(WidgetWrap):
     return caption
 
   def get_text(self):
-    return self.tag_text
+    return self.tag_edit.edit_text
 
   def move_cursor(self, translation):
     self.tag_edit.edit_pos += translation

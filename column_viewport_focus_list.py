@@ -1,7 +1,5 @@
 # column_viewport_focus_list.py
 
-# An list for use with urwid columns widget
-# because the built in functionality is garbage
 from urwid.raw_display import Screen
 import time
 
@@ -52,18 +50,22 @@ class ColumnViewportFocusList():
     return viewport_list
      
   def _filter_contents(self):
-    filtered_contents = []
+    group_contents = []
     for tlist in self.contents:
+      if self.group in tlist.group:
+        group_contents.append(tlist)
+    filtered_contents = []
+    for tlist in group_contents:
       if self.filter in tlist.name:
         filtered_contents.append(tlist) 
-    # filter group here
-    return filtered_contents
+    return filtered_contents 
 
   def _find_visible(self):
     screen_dims = self.screen.get_cols_rows() 
     cols = screen_dims[0]
     self.visible = int(cols/self.min_cols)
     if self.visible > self.max_visible: self.visible = self.max_visible 
+    if self.visible > len(self._filter_contents()): self.visible = len(self._filter_contents())
 
   def trans_view(self, translation):
     new_index = self.index + translation

@@ -7,3 +7,9 @@ class GroupFilter(WidgetWrap):
     self.edit = Edit(caption='Group= ', edit_text='', align='center')
     self.line_box = LineBox(self.edit)
     super().__init__(Filler(self.line_box))
+
+  def keypress(self, size, key):
+    if key == 'enter' or key == 'esc':
+      return 'clear'
+    else:
+      return super().keypress(size, key)

@@ -24,6 +24,10 @@ class TListManager(WidgetWrap):
     self.fill()
     return super().render(size, focus)
 
+  def new(self):
+    self.tlists.insert(TList()) 
+    self.fill()
+
   def get_lists(self):
     tlist_dicts = []
     for tlist in self.tlists.contents:
@@ -48,6 +52,8 @@ class TListManager(WidgetWrap):
         self.columns.focus_position = self.tlists.focus
       except IndexError:
         pass
+    else:
+      self.columns.contents.clear()
 
   def move_focus(self, translation):
     self.tlists.focus += translation
@@ -61,7 +67,23 @@ class TListManager(WidgetWrap):
         self.move_focus(1)
       elif key == 'H':
         self.move_focus(-1)
+      elif key == 'D':
+        return 'delete list', self
+      elif key == 'Q':
+        self.save_and_quit()
+        return 'quit'
       else: return super().keypress(size, key)
+
+  def delete_focus(self):
+    focus = self.columns.focus
+    tlist_io.delete_list(focus.id)
+    self.tlists.contents.remove(focus)
+    self.fill()
+
+  def save_and_quit(self):
+    for tlist in self.tlists.contents:
+      tlist_io.save_list(tlist.export())
+    
 
 if __name__ == '__main__':
   manager = TListManager()

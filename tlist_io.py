@@ -1,5 +1,6 @@
 # tlist_io.py
 from tlist import TList
+import os
 
 # List declaration
 LIST_OP = '@'
@@ -14,7 +15,7 @@ EXPAN_OP = '-'
 
 def load_list(filename):
 
-  tlist_data = { 'name': '', 'id': '', 'tasks': []} 
+  tlist_data = { 'name': '', 'id': '', 'group': '', 'tasks': []} 
   data_buffer = {}
   
   with open(filename) as f:
@@ -50,8 +51,16 @@ def save_list(tlist_data):
   filename = '/home/desyn8686/Tudo/.lists/' + tlist_data['id'] + '.tlist'
   with open(filename, 'w') as f:
     f.write(LIST_OP + tlist_data['name'] + '\n')
+    f.write(GROUP_OP + tlist_data['group'] + '\n')
     f.write(HEX_OP + tlist_data['id'] + '\n')
     for task in tlist_data['tasks']:
       f.write(TASK_OP + task['tag'] + '\n')
       for line in task['expan']:
         f.write(EXPAN_OP + line + '\n')
+
+def delete_list(tlist_id):
+  filename = '/home/desyn8686/Tudo/.lists/' + tlist_id + '.tlist'
+  try:
+    os.remove(filename)
+  except FileNotFoundError:
+    pass

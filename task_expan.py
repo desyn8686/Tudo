@@ -8,9 +8,6 @@ class TaskExpan(WidgetWrap):
 
   def __init__(self, expan_lines):  
 
-    self.lines = []
-
-
     # Build widget stack
     self.expan_list = self.build_lines(expan_lines)
     self.expan_pile = Pile([])
@@ -22,9 +19,8 @@ class TaskExpan(WidgetWrap):
     widget_list = []
     for line in lines:
       op_char = line[0]
-      strike = None
-      if op_char == 'o': strike = False
-      elif op_char == 'x': strike = True
+      strike = False
+      if op_char == 'x': strike = True
       line = line.lstrip(op_char)
       expan = _Expan(line, strike)
       widget_list.append(expan)
@@ -35,22 +31,37 @@ class TaskExpan(WidgetWrap):
 
   def get_lines(self):
     raw_lines = []
-    for line in self.lines:
-      raw_lines.append(line.get_edit_text())
+    for line in self.expan_list:
+      if line.strikethrough:
+        raw_lines.append('x' + line.edit.get_edit_text())
+      else:
+        raw_lines.append('o' + line.edit.get_edit_text())
     return raw_lines
 
   def move_cursor(self, translation):
     line = self.expan_pile.focus.base_widget  
-    line.edit_pos += translation
+    line.edit.edit_pos += translation
 
   def toggle_strike(self):
     line = self.expan_pile.focus
     line.toggle_strike()
 
+  def delete_focus(self):
+    focus = self.expan_pile.focus
+    for expan_tuple in self.expan_pile.contents:
+      if focus in expan_tuple:
+        self.expan_list.remove(focus)
+        print(len(self.expan_list))
+        self.expan_pile.contents.remove(expan_tuple)
+  
+  def new(self):
+    new_expan = _Expan('new expan')
+    self.expan_list.append(new_expan)
+    self.expan_pile.contents.append((new_expan, ('weight', 1)))
 
 class _Expan(WidgetWrap):
   
-  def __init__(self, edit_text, strike):
+  def __init__(self, edit_text, strike=False):
  
     self.strikethrough = strike
     self.leading_space = '   '
