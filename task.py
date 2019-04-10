@@ -18,7 +18,7 @@ class Task(WidgetWrap):
     # Build widget stack
     self.tag = TaskTag(tag_index, self.task_data['tag'])
     self.expan = TaskExpan(self.task_data['expan'])
-    self.pile = Pile([(1, self.tag)])
+    self.pile = Pile([self.tag])
     super().__init__(self.pile)
 
   def toggle_expan(self):
@@ -46,4 +46,4 @@ class Task(WidgetWrap):
       if self.expan in widget_tuple:
         self.pile.contents.remove(widget_tuple)
     if self.show_expan:
-      self.pile.contents.append((self.expan, ('given', self.expan.length())))
+      self.pile.contents.append((self.expan, ('flow', None)))

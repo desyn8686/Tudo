@@ -44,7 +44,7 @@ class TaskTag(WidgetWrap):
           focus_map=self.focus_STRIKE)
     self.tag_fill = Filler(self.tag_map, 'top')
 
-    super().__init__(self.tag_fill)
+    super().__init__(self.tag_map)
 
   def build_caption(self):
     trailing_space = ' '

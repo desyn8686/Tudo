@@ -1,7 +1,0 @@
-minimal features for use:
-saving
-deleting lines (deleting tag should kill whole task)
-setting list group
-displaying list group
-displaying filters in footer
-displaying command to pull up help list in footer
