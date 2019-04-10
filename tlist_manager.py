@@ -1,32 +1,29 @@
 import tlist_io
 from column_viewport_focus_list import ColumnViewportFocusList
 from tlist import TList
-import os
 from urwid import MainLoop, WidgetWrap, WidgetPlaceholder, Overlay, Text, Filler, LineBox, ListBox, SimpleFocusListWalker, Columns
 from urwid import AttrMap, AttrSpec
 
 class TListManager(WidgetWrap):
 
-  PATH = os.path.expanduser('~') + '/Tudo/.lists/'
-  
   def __init__(self):
     self.tlists = ColumnViewportFocusList()
 
-    for tlist_file in os.listdir(self.PATH):
-      tlist_data = tlist_io.load_list(self.PATH + tlist_file)
-      loaded_tlist = TList(tlist_data)
-      self.tlists.append(loaded_tlist)
+    loaded_lists = tlist_io.load_list_data()
+    for data in loaded_lists:
+      tlist = TList(data)
+      self.tlists.append(tlist)
 
     self.columns = Columns([], min_width = 32)
     super().__init__(self.columns)
 
   def render(self, size, focus=False):
-    self.fill()
+    self.pack()
     return super().render(size, focus)
 
   def new(self):
     self.tlists.insert(TList()) 
-    self.fill()
+    self.pack()
 
   def get_lists(self):
     tlist_dicts = []
@@ -37,7 +34,7 @@ class TListManager(WidgetWrap):
   def get_groups(self):
     return('meow')
 
-  def fill(self):
+  def pack(self):
     viewport_list = self.tlists.get_viewport()
     if len(self.tlists.contents) > 0:
       self.columns.contents.clear()
@@ -57,7 +54,7 @@ class TListManager(WidgetWrap):
 
   def move_focus(self, translation):
     self.tlists.focus += translation
-    self.fill()
+    self.pack()
 
   def keypress(self, size, key):
     if self.columns.focus.is_editing:
@@ -78,7 +75,7 @@ class TListManager(WidgetWrap):
     focus = self.columns.focus
     tlist_io.delete_list(focus.id)
     self.tlists.contents.remove(focus)
-    self.fill()
+    self.pack()
 
   def save_and_quit(self):
     for tlist in self.tlists.contents:

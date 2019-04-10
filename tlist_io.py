@@ -13,19 +13,30 @@ TASK_OP = '!'
 # Expan declaration
 EXPAN_OP = '-'
 
-def load_list(filename):
+HOME = os.path.expanduser('~')
+LIST_DIR = '/Projects/Tudo/.lists/'
+PATH = HOME + LIST_DIR
+
+def load_list_data():
+  loaded_lists = []
+  for tlist_filename in os.listdir(PATH):
+    tlist_data = parse_list(tlist_filename)
+    loaded_lists.append(tlist_data)
+
+  return loaded_lists
+
+def parse_list(filename):
 
   tlist_data = { 'name': '', 'id': '', 'group': '', 'tasks': []} 
   data_buffer = {}
   
-  with open(filename) as f:
+  with open(PATH + filename) as f:
     for line in f:
       # Format line 
       op_char = line[0]
       line = line.lstrip(op_char)
       line = line.rstrip('\n')
 
-      # Why doesn't python have a case statement?
       if op_char == LIST_OP: 
         tlist_data['name'] = line
       elif op_char == HEX_OP:
@@ -43,7 +54,7 @@ def load_list(filename):
 
   return tlist_data
 
-def _write_buffer( task_data, data_buffer):
+def _write_buffer(task_data, data_buffer):
   task_data.append(data_buffer.copy())
   data_buffer.clear()
 
