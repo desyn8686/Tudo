@@ -87,7 +87,7 @@ class _Expan(WidgetWrap):
     self.map = AttrMap(self.edit, attr_map=attr, focus_map=attr_focus)
     self.fill = Filler(self.map)
 
-    super().__init__(self.fill)
+    super().__init__(self.map)
 
   def toggle_strike(self):
     if self.strikethrough:

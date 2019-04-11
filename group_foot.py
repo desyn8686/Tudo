@@ -4,5 +4,5 @@ class GroupFoot(WidgetWrap):
   
   def __init__(self, group):
     self.edit = Edit(caption='Group: ', edit_text=group, align='center')
-    self.map = AttrMap(self.edit, AttrSpec('white', 'black'))
+    self.map = AttrMap(self.edit, AttrSpec('', 'black'))
     super().__init__(self.map)

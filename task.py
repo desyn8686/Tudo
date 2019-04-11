@@ -4,16 +4,15 @@ from task_expan import TaskExpan
 from urwid import WidgetWrap, Pile 
 
 class Task(WidgetWrap):
+
+  show_expan = False
   
   def __init__(self, tag_index=99, task_data=None):
-
     self.task_data = task_data
     if not self.task_data:
       self.task_data = {}
       self.task_data['tag'] = 'oNew task' 
       self.task_data['expan'] = []
-
-    self.show_expan = False
 
     # Build widget stack
     self.tag = TaskTag(tag_index, self.task_data['tag'])
@@ -29,6 +28,16 @@ class Task(WidgetWrap):
         self.show_expan = True 
       self.redraw_expan()
 
+  def redraw_expan(self):
+    for widget_tuple in self.pile.contents:
+      if self.expan in widget_tuple:
+        self.pile.contents.remove(widget_tuple)
+    if self.show_expan:
+      self.pile.contents.append((self.expan, ('weight', 1)))
+
+  def prompt_delete(self):
+    pass
+
   def toggle_strike(self):
     self.pile.focus.toggle_strike()
       
@@ -40,10 +49,3 @@ class Task(WidgetWrap):
     if self.expan.length() == 0:
       self.show_expan = False
     self.redraw_expan()
-
-  def redraw_expan(self):
-    for widget_tuple in self.pile.contents:
-      if self.expan in widget_tuple:
-        self.pile.contents.remove(widget_tuple)
-    if self.show_expan:
-      self.pile.contents.append((self.expan, ('flow', None)))
