@@ -1,11 +1,14 @@
 # task_tag.py
 
+from conf_prompt import ConfPrompt
 from urwid import WidgetWrap, Edit, AttrSpec, AttrMap, Filler
 from urwid import MainLoop
+import urwid
 
 
-class TaskTag(WidgetWrap):
+class TaskTag(urwid.PopUpLauncher):
 
+  signals = ['delete']
   def __init__(self, tag_index, tag_text):
     
     op_char = tag_text[0]
@@ -27,19 +30,19 @@ class TaskTag(WidgetWrap):
     self.focus_STRIKE = AttrSpec(', bold, strikethrough', '')
 
     # Build widget stack
-    self.tag_edit = Edit(
+    self.edit = Edit(
         caption=self.build_caption(),
         edit_text=self.tag_text,
         multiline=False,
         wrap ='clip')
     if not self.strikethrough:
       self.tag_map = AttrMap(
-          self.tag_edit,
+          self.edit,
           attr_map=self.text_attr,
           focus_map=self.focus_attr)
     else:
       self.tag_map = AttrMap(
-          self.tag_edit,
+          self.edit,
           attr_map=self.text_STRIKE,
           focus_map=self.focus_STRIKE)
     self.tag_fill = Filler(self.tag_map, 'top')
@@ -53,32 +56,48 @@ class TaskTag(WidgetWrap):
     else: caption_tag = 'X'
     leading_space = ' ' if len(caption_tag) < 2 else ''
 
-    if not self.strikethrough: caption = (self.index_attr, leading_space + caption_tag + trailing_space)
+    if not self.strikethrough: 
+      caption = (self.index_attr, leading_space + caption_tag + trailing_space)
     else: caption = (self.index_STRIKE, leading_space + caption_tag + trailing_space)
 
     return caption
 
   def get_text(self):
-    return self.tag_edit.edit_text
+    return self.edit.edit_text
 
   def move_cursor(self, translation):
-    self.tag_edit.edit_pos += translation
+    self.edit.edit_pos += translation
+
+  def prompt_delete(self):
+    self.open_pop_up()
 
   def toggle_strike(self):
     if self.strikethrough:
       self.strikethrough = False
       caption = self.build_caption()
-      self.tag_edit.set_caption(caption)
+      self.edit.set_caption(caption)
       self.tag_map.set_attr_map({None: self.text_attr})
       self.tag_map.set_focus_map({None: self.focus_attr}) 
     else:
       self.strikethrough = True
       caption = self.build_caption()
-      self.tag_edit.set_caption(caption)
+      self.edit.set_caption(caption)
       self.tag_map.set_attr_map({None: self.text_STRIKE})
       self.tag_map.set_focus_map({None: self.focus_STRIKE})
 
-if __name__ == "__main__":
-  task = TaskTag(1, "todo task")
-  loop = MainLoop(task)
-  loop.run()
+  def create_pop_up(self):
+    prompt = ConfPrompt('line')
+    urwid.connect_signal(prompt, 'close', self.confirm_delete)
+    return prompt
+
+  def confirm_delete(self, obj):
+    response = obj.response
+    if response == 'yes':
+      self.close_pop_up() 
+      self._emit('delete')
+    else:
+      self.close_pop_up()
+
+  def get_pop_up_parameters(self):
+    width = len(self.edit.text)-3 if len(self.edit.text)-3 > 21 else 21 
+    return {'left': 3, 'top': 1, 'overlay_width': width, 'overlay_height': 1} 
