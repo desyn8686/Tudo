@@ -60,9 +60,13 @@ class TList(WidgetWrap):
     self.body.remove(obj)
     self.index_tasks()
 
-#  def _write_buffer(self, task_data, data_buffer):
-#    task_data.append(data_buffer.copy())
-#    data_buffer.clear()
+  def set_edit(self, editing):
+    if editing:
+      self.is_editing = True
+      self.line_attr.set_focus_map({None: self.focus_ins})
+    else:
+      self.is_editing = False
+      self.line_attr.set_focus_map({None: self.focus_nav})
 
   def export(self):
     data = {'name': self.name, 'group': self.group, 'id': self.id, 'tasks': []}
@@ -86,8 +90,7 @@ class TList(WidgetWrap):
 
   def nav_keypress(self, size, key):
     if key == 'i':
-      self.is_editing = True
-      self.line_attr.set_focus_map({None: self.focus_ins})
+      self.set_edit(True)
     # Move focus up/down
     elif key == 'j':
       self.move_focus(1)
@@ -117,10 +120,9 @@ class TList(WidgetWrap):
       except AttributeError:
         pass
     elif key == 'n':
-      self.title.change()
+      self.title.edit()
     elif key == 'g':
-      self.list_frame.focus_position = 'footer'
-      self.is_editing = True
+      self.group_foot.edit()
     elif key == 'd':
       if self.list_box.focus:
         self.list_box.focus.prompt_delete() 
@@ -135,16 +137,17 @@ class TList(WidgetWrap):
         self.tasks.append(new_task)
         self.body.append(new_task)
       self.index_tasks()
+      self.set_edit(True)
     elif key == 't':
       if self.list_box.focus:
         focus = self.list_box.focus
         focus.new()
+        self.set_edit(True)
     else: return key
 
   def input_keypress(self, size, key):
     if (key == 'esc' or key == 'enter'):
-      self.is_editing = False
-      self.line_attr.set_focus_map({None: self.focus_nav})
+      self.set_edit(False)
       if self.list_frame.focus_position != 'body':
         self.name = self.title.edit.edit_text
         self.group = self.group_foot.edit.edit_text
