@@ -3,6 +3,7 @@ from urwid import WidgetWrap, SimpleFocusListWalker, ListBox, Edit, AttrSpec, At
 from task import Task
 from title_bar import TitleBar
 from group_foot import GroupFoot
+import urwid
 import uuid
 
 
@@ -26,6 +27,11 @@ class TList(WidgetWrap):
       self.group = 'none'
       self.id = uuid.uuid4().hex
 
+    # AttrSpecs
+    self.attr_spec = AttrSpec('', '')
+    self.focus_nav = AttrSpec('h12', '')
+    self.focus_ins = AttrSpec('h140', '')
+
     # Build widget stack
     self.title = TitleBar(self.name)
     self.group_foot = GroupFoot(self.group)
@@ -33,7 +39,7 @@ class TList(WidgetWrap):
     self.list_box = ListBox(self.body)
     self.list_frame = Frame(self.list_box, header=self.title, footer=self.group_foot)
     self.line_box = LineBox(self.list_frame)
-    self.line_attr = AttrMap(self.line_box, AttrSpec('', ''), AttrSpec('h12', ''))
+    self.line_attr = AttrMap(self.line_box, self.attr_spec, self.focus_nav)
     super().__init__(self.line_attr)
 
   def parse_data(self, list_data):
@@ -45,8 +51,14 @@ class TList(WidgetWrap):
     index = 1
     for task_dict in task_data:
       task = Task(index, task_dict)
+      urwid.connect_signal(task, 'delete', self.delete)
       index += 1
       self.tasks.append(task)
+
+  def delete(self, obj):
+    self.tasks.remove(obj)
+    self.body.remove(obj)
+    self.index_tasks()
 
 #  def _write_buffer(self, task_data, data_buffer):
 #    task_data.append(data_buffer.copy())
@@ -75,6 +87,7 @@ class TList(WidgetWrap):
   def nav_keypress(self, size, key):
     if key == 'i':
       self.is_editing = True
+      self.line_attr.set_focus_map({None: self.focus_ins})
     # Move focus up/down
     elif key == 'j':
       self.move_focus(1)
@@ -104,8 +117,7 @@ class TList(WidgetWrap):
       except AttributeError:
         pass
     elif key == 'n':
-      self.list_frame.focus_position = 'header' 
-      self.is_editing = True
+      self.title.change()
     elif key == 'g':
       self.list_frame.focus_position = 'footer'
       self.is_editing = True
@@ -114,30 +126,31 @@ class TList(WidgetWrap):
         self.list_box.focus.prompt_delete() 
     elif key == 'T':
       new_task = Task()
-      self.tasks.append(new_task)
-      self.body.append(new_task)
+      urwid.connect_signal(new_task, 'delete', self.delete)
+      if self.list_box.focus:
+        self.tasks.insert(self.list_box.focus_position+1, new_task)
+        self.body.insert(self.list_box.focus_position+1, new_task)
+        self.list_box.focus_position += 1
+      else:
+        self.tasks.append(new_task)
+        self.body.append(new_task)
       self.index_tasks()
     elif key == 't':
       if self.list_box.focus:
         focus = self.list_box.focus
-        focus.expan.new()
-        focus.show_expan = True
-        focus.redraw_expan()
+        focus.new()
     else: return key
 
   def input_keypress(self, size, key):
     if (key == 'esc' or key == 'enter'):
       self.is_editing = False
+      self.line_attr.set_focus_map({None: self.focus_nav})
       if self.list_frame.focus_position != 'body':
         self.name = self.title.edit.edit_text
         self.group = self.group_foot.edit.edit_text
         self.list_frame.focus_position = 'body'
     else: return super().keypress(size, key)
     
-  def delete_focus(self):
-    self.tasks.remove(self.list_box.focus)
-    self.body.remove(self.list_box.focus)
-    self.index_tasks()
 
   def move_focus(self, trans):
     focus_task = self.list_box.focus
@@ -167,5 +180,5 @@ class TList(WidgetWrap):
     index = 1
     for task in self.body:
       task.tag.tag_index = str(index)
-      task.tag.tag_edit.set_caption(task.tag.build_caption())
+      task.tag.edit.set_caption(task.tag.build_caption())
       index += 1
