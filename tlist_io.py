@@ -51,15 +51,18 @@ def parse_list(filename):
         data_buffer['expan'].append(line)
 
   if data_buffer: _write_buffer(tlist_data['tasks'], data_buffer)
-
   return tlist_data
 
 def _write_buffer(task_data, data_buffer):
   task_data.append(data_buffer.copy())
   data_buffer.clear()
 
+def save_all(tlist_data_list):
+  for tlist_data in tlist_data_list:
+    save_list(tlist_data)
+
 def save_list(tlist_data):
-  filename = '/home/desyn8686/Tudo/.lists/' + tlist_data['id'] + '.tlist'
+  filename = PATH + tlist_data['id'] + '.tlist'
   with open(filename, 'w') as f:
     f.write(LIST_OP + tlist_data['name'] + '\n')
     f.write(GROUP_OP + tlist_data['group'] + '\n')
@@ -70,7 +73,7 @@ def save_list(tlist_data):
         f.write(EXPAN_OP + line + '\n')
 
 def delete_list(tlist_id):
-  filename = '/home/desyn8686/Tudo/.lists/' + tlist_id + '.tlist'
+  filename = PATH + tlist_id + '.tlist'
   try:
     os.remove(filename)
   except FileNotFoundError:
