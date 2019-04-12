@@ -7,16 +7,15 @@ class TitleBar(urwid.WidgetWrap):
  
   def __init__(self, title):
     self.title = _Title(title)
-    urwid.connect_signal(self.title, 'rebuild', self.rebuild_stack)
-    self.padding = urwid.Padding(self.title, 'center', self.title.pack()[0])
-    self.map = AttrMap(self.padding, AttrSpec('yellow', 'black'))
-    self.holder = urwid.WidgetPlaceholder(self.map)
+    urwid.connect_signal(self.title, 'rebuild', self.build_stack)
+    self.holder = urwid.WidgetPlaceholder(None)
+    self.build_stack()
     super().__init__(self.holder)
 
-  def change(self):
-    self.title.change()
+  def edit(self):
+    self.title.start_edit()
 
-  def rebuild_stack(self, obj):
+  def build_stack(self, obj=None):
     pack = self.title.pack()[0]
     length = pack if pack else 1
     self.padding = urwid.Padding(self.title, 'center', length)
@@ -28,10 +27,9 @@ class _Title(urwid.PopUpLauncher):
   signals = ['rebuild']
   def __init__(self, title):
     self.text = urwid.Text(title, align='center')
-    self.holder = urwid.WidgetPlaceholder(self.text)
-    super().__init__(self.holder)
+    super().__init__(self.text)
 
-  def change(self):
+  def start_edit(self):
     self.original_text = self.text.text
     self.open_pop_up()
 
