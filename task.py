@@ -31,9 +31,14 @@ class Task(WidgetWrap):
         self.show_expan = True 
       self.redraw_expan()
 
-  def close_expan(self, obj):
+  def close_expan(self, obj=None):
     self.show_expan = False
     self.redraw_expan()
+    
+  def open_expan(self, obj=None):
+    if self.expan.length() > 0:
+      self.show_expan = True 
+      self.redraw_expan()
 
   def redraw_expan(self):
     for widget_tuple in self.pile.contents:

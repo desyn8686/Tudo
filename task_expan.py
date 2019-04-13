@@ -43,7 +43,7 @@ class TaskExpan(WidgetWrap):
     return raw_lines
 
   def move_cursor(self, translation):
-    line = self.expan_pile.focus.base_widget  
+    line = self.expan_pile.focus  
     line.edit.edit_pos += translation
 
   def toggle_strike(self):

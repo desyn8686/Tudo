@@ -18,7 +18,6 @@ class TListManager(urwid.WidgetWrap):
 
   def build_tlists(self, tlist_data):
     for data in tlist_data:
-      print('Building tlist: ' + data['id'])
       tlist = TList(data)
       self.tlists.append(tlist)
 
@@ -47,23 +46,23 @@ class TListManager(urwid.WidgetWrap):
     self.tlists.focus += translation
     self.pack()
 
-  def delete_focus(self):
-    focus = self.columns.focus
-    tlist_io.delete_list(focus.id)
-    self.tlists.contents.remove(focus)
-    self.pack()
-
   def pull_list_data(self):
     tlist_data = []
-    for tlist in self.tlists.contents:
-      tlist_data.append(tlist.export())
-    return tlist_data
+    for holder in self.tlists.contents:
+      tlist_data.append(holder.tlist.export())
+    return tlist_data, self.tlists.deleted
 
   def keypress(self, size, key):
     holder = self.columns.focus
-    if not self.empty and holder.tlist.is_editing:
+    if holder.deleting:
       return super().keypress(size, key)
-    elif not self.empty:
+    elif self.empty:
+      if key == 'N':      
+        self.build_new()
+      return
+    elif holder.tlist.is_editing:
+      return super().keypress(size, key)
+    else:
       if key == 'D':
         holder.prompt_delete()
       elif key == 'L':
@@ -73,9 +72,6 @@ class TListManager(urwid.WidgetWrap):
       elif key == 'N':
         self.build_new()
       else: return super().keypress(size, key)
-    else:
-      if key == 'N':      
-        self.build_new()
 
   def render(self, size, focus=False):
     self.pack()

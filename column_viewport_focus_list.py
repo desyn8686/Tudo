@@ -14,6 +14,7 @@ class ColumnViewportFocusList():
     self.max_visible = max_visible
     self.min_cols = min_columns
     self.contents = []
+    self.deleted = []
     self.index = 0
     self.focus = 0
     self.visible = 0
@@ -95,6 +96,7 @@ class ColumnViewportFocusList():
 
   def delete(self, obj):
     self.contents.remove(obj)
+    self.deleted.append(obj.tlist.id)
     urwid.emit_signal(self, 'pack')
 
   def set_filter(self, new_filter):

@@ -13,7 +13,7 @@ import os
 #signal.signal(signal.SIGTSTP, suspend)
 
 tlm = TListManager(tlist_io.load_list_data())
-loop = urwid.MainLoop(tlm, pop_ups=True)
+loop = urwid.MainLoop(tlm, pop_ups=True, handle_mouse=True)
 running = True
 while running:
   try:

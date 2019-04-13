@@ -1,0 +1,7 @@
+@Todo - CLI
+^none
+#4015c23a0b2a442b8c335756cf6f2bbd
+!oCall list by name
+!oNew task
+!oCall group of lists by name
+-ogive lists one at a time or give way to scroll through

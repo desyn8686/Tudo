@@ -13,7 +13,6 @@ class TList(urwid.WidgetWrap):
   def __init__(self, list_data=None):
 
     self.is_editing = False
-
     self.tasks = []
     self.name = None
     self.group = None
@@ -31,7 +30,7 @@ class TList(urwid.WidgetWrap):
     # AttrSpecs
     self.attr_spec = AttrSpec('', '')
     self.focus_nav = AttrSpec('h12', '')
-    self.focus_ins = AttrSpec('h140', '')
+    self.focus_ins = AttrSpec('h160', '')
 
     # Build widget stack
     self.title = TitleBar(self.name)
@@ -112,6 +111,16 @@ class TList(urwid.WidgetWrap):
     elif key == 'e':
       try:
         self.list_box.focus.toggle_expan()
+      except AttributeError:
+        pass
+    elif key == 'E':
+      try:
+        if not self.list_box.focus.show_expan:
+          for task in self.tasks:
+            task.open_expan()
+        else:
+          for task in self.tasks:
+            task.close_expan()
       except AttributeError:
         pass
     # Cross out a line

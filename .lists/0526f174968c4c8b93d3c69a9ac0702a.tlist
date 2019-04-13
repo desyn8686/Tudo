@@ -1,0 +1,11 @@
+@Todo - TUI
+^none
+#0526f174968c4c8b93d3c69a9ac0702a
+!oMaintain order of lists between sessions
+-ohave lists remember their index
+!oPrompt save on exit
+!oAdd expanded options to task for setting reminder times
+!o'E' to open all expans
+-oagain to close all?
+!oAdd some level of mouse input
+!xFix left/right movement of expan

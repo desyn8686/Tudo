@@ -20,7 +20,6 @@ PATH = HOME + LIST_DIR
 def load_list_data():
   loaded_lists = []
   for tlist_filename in os.listdir(PATH):
-    print('Loadingn data for: ' + tlist_filename)
     tlist_data = parse_list(tlist_filename)
     loaded_lists.append(tlist_data)
 
@@ -58,9 +57,13 @@ def _write_buffer(task_data, data_buffer):
   task_data.append(data_buffer.copy())
   data_buffer.clear()
 
-def save_all(tlist_data_list):
-  for tlist_data in tlist_data_list:
-    save_list(tlist_data)
+def save_all(data_tuple):
+  tlists = data_tuple[0]
+  deleted = data_tuple[1]
+  for tlist_id in deleted:
+    delete_list(tlist_id)
+  for data_dict in tlists:
+    save_list(data_dict)
 
 def save_list(tlist_data):
   filename = PATH + tlist_data['id'] + '.tlist'

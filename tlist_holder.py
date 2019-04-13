@@ -11,7 +11,10 @@ class TListHolder(urwid.WidgetPlaceholder):
     self.tlist = tlist
     super().__init__(self.tlist)
 
+    self.deleting = False
+
   def prompt_delete(self):
+    self.deleting = True
     prompt = ConfPrompt('list')
     urwid.connect_signal(prompt, 'close', self.confirm_delete)
     overlay = urwid.Overlay(
@@ -27,4 +30,5 @@ class TListHolder(urwid.WidgetPlaceholder):
     if obj.response == 'yes':
       self._emit('delete')
     elif obj.response == 'no':
+      self.deleting = False
       self.original_widget = self.tlist
