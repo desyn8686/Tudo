@@ -1,5 +1,6 @@
 # tlist.py
-from urwid import WidgetWrap, SimpleFocusListWalker, ListBox, Edit, AttrSpec, AttrMap, Filler, Frame, LineBox
+from urwid import ListBox, Edit, AttrSpec, AttrMap, Filler, Frame, LineBox
+from conf_prompt import ConfPrompt
 from task import Task
 from title_bar import TitleBar
 from group_foot import GroupFoot
@@ -7,7 +8,7 @@ import urwid
 import uuid
 
 
-class TList(WidgetWrap):
+class TList(urwid.WidgetWrap):
 
   def __init__(self, list_data=None):
 
@@ -35,7 +36,7 @@ class TList(WidgetWrap):
     # Build widget stack
     self.title = TitleBar(self.name)
     self.group_foot = GroupFoot(self.group)
-    self.body = SimpleFocusListWalker(self.tasks)
+    self.body = urwid.SimpleFocusListWalker(self.tasks)
     self.list_box = ListBox(self.body)
     self.list_frame = Frame(self.list_box, header=self.title, footer=self.group_foot)
     self.line_box = LineBox(self.list_frame)
@@ -69,7 +70,7 @@ class TList(WidgetWrap):
       self.line_attr.set_focus_map({None: self.focus_nav})
 
   def export(self):
-    data = {'name': self.name, 'group': self.group, 'id': self.id, 'tasks': []}
+    data = {'name': self.title.get_title(), 'group': self.group_foot.get_group(), 'id': self.id, 'tasks': []}
     for task in self.tasks:
       task_dict = {} 
       if task.tag.strikethrough:

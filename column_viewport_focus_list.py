@@ -1,10 +1,14 @@
 # column_viewport_focus_list.py
 
+from conf_prompt import ConfPrompt
+from tlist_holder import TListHolder
 from urwid.raw_display import Screen
 import time
+import urwid
 
 class ColumnViewportFocusList():
 
+  signals = ['pack']
   def __init__(self, max_visible=4, min_columns=36):
     self.screen = Screen()
     self.max_visible = max_visible
@@ -51,13 +55,13 @@ class ColumnViewportFocusList():
      
   def _filter_contents(self):
     group_contents = []
-    for tlist in self.contents:
-      if self.group in tlist.group:
-        group_contents.append(tlist)
+    for holder in self.contents:
+      if self.group in holder.tlist.group:
+        group_contents.append(holder)
     filtered_contents = []
-    for tlist in group_contents:
-      if self.filter in tlist.name:
-        filtered_contents.append(tlist) 
+    for holder in group_contents:
+      if self.filter in holder.tlist.name:
+        filtered_contents.append(holder) 
     return filtered_contents 
 
   def _find_visible(self):
@@ -76,11 +80,22 @@ class ColumnViewportFocusList():
       new_index = max_index
     self.index = new_index
 
-  def append(self, item):
-    self.contents.append(item)
+  def append(self, tlist):
+    holder = TListHolder(tlist)
+    urwid.connect_signal(holder, 'delete', self.delete)
+    self.contents.append(holder)
 
-  def insert(self, item):
-    self.contents.insert((self.index + self.focus), item)
+  def insert(self, tlist):
+    holder = TListHolder(tlist)
+    urwid.connect_signal(holder, 'delete', self.delete)
+    self.contents.insert((self.index + self.focus), holder)
+
+  def prompt_delete(self, tlist):
+    tlist.prompt_delete()
+
+  def delete(self, obj):
+    self.contents.remove(obj)
+    urwid.emit_signal(self, 'pack')
 
   def set_filter(self, new_filter):
     self.index = 0
@@ -89,13 +104,3 @@ class ColumnViewportFocusList():
   def set_group(self, new_group):
     self.index = 0
     self.group = new_group
-
-if __name__ == "__main__":
-  vList = ColumnViewportFocusList()
-  vList.insert("meow")
-  vList.insert("cat")
-  vList.focus = 1
-  vList.insert("poo")
-  while True:
-    print(vList.get_viewport())
-    time.sleep(.5)

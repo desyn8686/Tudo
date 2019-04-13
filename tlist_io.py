@@ -20,6 +20,7 @@ PATH = HOME + LIST_DIR
 def load_list_data():
   loaded_lists = []
   for tlist_filename in os.listdir(PATH):
+    print('Loadingn data for: ' + tlist_filename)
     tlist_data = parse_list(tlist_filename)
     loaded_lists.append(tlist_data)
 

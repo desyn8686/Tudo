@@ -12,8 +12,16 @@ class TitleBar(urwid.WidgetWrap):
     self.build_stack()
     super().__init__(self.holder)
 
+  def get_title(self):
+    return self.title.text.text
+
   def edit(self):
     self.title.start_edit()
+
+  def delete(self):
+    self.test = urwid.Text('meowmeow')
+    self.padding = urwid.Padding(self.test, 'center', 'pack')
+    self.holder.original_widget = self.padding
 
   def build_stack(self, obj=None):
     pack = self.title.pack()[0]
@@ -33,24 +41,27 @@ class _Title(urwid.PopUpLauncher):
     self.original_text = self.text.text
     self.open_pop_up()
 
+  def update_change(self, obj):
+    self.text.set_text(obj.edit.edit_text)
+    self._emit('rebuild')
+
+  def save_change(self, obj):
+    self.text.set_text(str.strip(obj.edit.edit_text))
+    self.original_text = self.text.text    
+    self.close_pop_up()
+    self._emit('rebuild')
+
+  def abort_change(self, obj):
+    self.text.set_text(self.original_text)
+    self.close_pop_up()
+    self._emit('rebuild')
+
   def create_pop_up(self):
     prompt = ChangePrompt(self.text.text)
-    urwid.connect_signal(prompt, 'close', self.confirm_change)
+    urwid.connect_signal(prompt, 'save', self.save_change)
+    urwid.connect_signal(prompt, 'abort', self.abort_change)
+    urwid.connect_signal(prompt, 'update', self.update_change)
     return prompt
-
-  def confirm_change(self, obj):
-    response = obj.response
-    if response == 'change':
-      self.close_pop_up() 
-      self.text.set_text(obj.edit.edit_text)
-      self.open_pop_up()
-    elif response == 'confirm':
-      self.original_text = self.text.text
-      self.close_pop_up()
-    elif response == 'cancel':
-      self.text.set_text(self.original_text)
-      self.close_pop_up()
-    self._emit('rebuild')
 
   def get_pop_up_parameters(self):
     return {'left': -1, 'top': 0, 'overlay_width': len(self.text.text)+2, 'overlay_height': 1} 

@@ -9,6 +9,7 @@ class ConfPrompt(urwid.WidgetWrap):
   def __init__(self, obj_type):
     self.response = ''
     self.text = urwid.Text(self.prompt_head + obj_type + self.prompt_tail, align='center')
+    self.text._selectable = True
     self.map = urwid.AttrMap(self.text, urwid.AttrSpec('h231', 'h160'))
     self.fill = urwid.Filler(self.map)
     super().__init__(self.fill)
