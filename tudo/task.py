@@ -6,17 +6,20 @@ import urwid
 
 class Task(WidgetWrap):
 
+  new_task = False
   show_expan = False
   signals = ['delete'] 
+
   def __init__(self, tag_index=99, task_data=None):
     self.task_data = task_data
     if not self.task_data:
+      self.new_task = True
       self.task_data = {}
-      self.task_data['tag'] = 'oNew task' 
+      self.task_data['tag'] = 'o<empty tag>' 
       self.task_data['expan'] = []
 
     # Build widget stack
-    self.tag = TaskTag(tag_index, self.task_data['tag'])
+    self.tag = TaskTag(tag_index, self.task_data['tag'], self.new_task)
     urwid.connect_signal(self.tag, 'delete', self.delete)
     self.expan = TaskExpan(self.task_data['expan'])
     urwid.connect_signal(self.expan, 'empty', self.close_expan)
@@ -64,3 +67,4 @@ class Task(WidgetWrap):
       
   def move_cursor(self, translation):
     self.pile.focus.move_cursor(translation)
+

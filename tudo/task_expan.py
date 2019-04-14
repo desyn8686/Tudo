@@ -62,7 +62,7 @@ class TaskExpan(WidgetWrap):
       self._emit('empty')
   
   def new(self):
-    new_expan = _Expan('new expan')
+    new_expan = _Expan('<empty expan>', new=True)
     urwid.connect_signal(new_expan, 'delete', self.delete)
     self.expan_list.append(new_expan)
     self.expan_pile.contents.append((new_expan, ('weight', 1)))
@@ -71,9 +71,12 @@ class TaskExpan(WidgetWrap):
 class _Expan(urwid.PopUpLauncher):
   
   signals = ['delete']
-  def __init__(self, edit_text, strike=False):
+  def __init__(self, edit_text, strike=False, new=False):
  
     self.strikethrough = strike
+    self.new_expan = new
+
+    # Spacing strings
     self.leading_space = '   '
     self.leading_char = '- '
     self.leading_STRIKE = 'x '
@@ -132,3 +135,10 @@ class _Expan(urwid.PopUpLauncher):
   def get_pop_up_parameters(self):
     width = len(self.edit.text)-5 if len(self.edit.text)-5 > 21 else 21 
     return {'left': 5, 'top': 1, 'overlay_width': width, 'overlay_height': 1} 
+
+  def keypress(self, size, key):
+    if self.new_expan:
+      if self.edit.valid_char(key) or key == 'backspace':
+        self.edit.set_edit_text('')
+        self.new_expan= False
+    super().keypress(size, key)

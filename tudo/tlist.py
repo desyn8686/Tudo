@@ -136,7 +136,7 @@ class TList(urwid.WidgetWrap):
     elif key == 'd':
       if self.list_box.focus:
         self.list_box.focus.prompt_delete() 
-    elif key == 'T':
+    elif key == 't':
       new_task = Task()
       urwid.connect_signal(new_task, 'delete', self.delete)
       if self.list_box.focus:
@@ -148,7 +148,7 @@ class TList(urwid.WidgetWrap):
         self.body.append(new_task)
       self.index_tasks()
       self.set_edit(True)
-    elif key == 't':
+    elif key == 'T':
       if self.list_box.focus:
         focus = self.list_box.focus
         focus.new()
