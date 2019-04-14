@@ -1,6 +1,6 @@
 # task_tag.py
 
-from conf_prompt import ConfPrompt
+from tudo.conf_prompt import ConfPrompt
 from urwid import WidgetWrap, Edit, AttrSpec, AttrMap, Filler
 from urwid import MainLoop
 import urwid

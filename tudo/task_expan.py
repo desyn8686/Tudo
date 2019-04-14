@@ -1,6 +1,6 @@
 # task_expan.py
 
-from conf_prompt import ConfPrompt
+from tudo.conf_prompt import ConfPrompt
 from urwid import WidgetWrap, Edit, AttrSpec, AttrMap, Filler, SimpleFocusListWalker, ListBox
 from urwid import MainLoop, BoxAdapter, Pile
 import urwid

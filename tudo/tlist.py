@@ -1,9 +1,9 @@
 # tlist.py
 from urwid import ListBox, Edit, AttrSpec, AttrMap, Filler, Frame, LineBox
-from conf_prompt import ConfPrompt
-from task import Task
-from title_bar import TitleBar
-from group_foot import GroupFoot
+from tudo.conf_prompt import ConfPrompt
+from tudo.task import Task
+from tudo.title_bar import TitleBar
+from tudo.group_foot import GroupFoot
 import urwid
 import uuid
 

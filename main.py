@@ -1,5 +1,5 @@
-from tlist_manager import TListManager
-import tlist_io
+from tudo.tlist_manager import TListManager
+import tudo.tlist_io as tlist_io
 import urwid 
 import signal
 import os

@@ -1,6 +1,6 @@
-from column_viewport_focus_list import ColumnViewportFocusList
-from tlist import TList
-from empty import Empty
+from tudo.column_viewport_focus_list import ColumnViewportFocusList
+from tudo.tlist import TList
+from tudo.empty import Empty
 from urwid import MainLoop, WidgetPlaceholder, Overlay, Text, Filler, LineBox, ListBox, SimpleFocusListWalker, Columns
 from urwid import AttrMap, AttrSpec
 import urwid

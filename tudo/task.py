@@ -1,6 +1,6 @@
 # task.py
-from task_tag import TaskTag
-from task_expan import TaskExpan
+from tudo.task_tag import TaskTag
+from tudo.task_expan import TaskExpan
 from urwid import WidgetWrap, Pile 
 import urwid
 

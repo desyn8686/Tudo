@@ -1,5 +1,5 @@
 # title_bar.py
-from change_prompt import ChangePrompt
+from tudo.change_prompt import ChangePrompt
 from urwid import Edit, AttrSpec, AttrMap, WidgetWrap
 import urwid
 

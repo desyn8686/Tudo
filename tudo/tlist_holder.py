@@ -1,6 +1,6 @@
 # tlist_holder.py
 
-from conf_prompt import ConfPrompt
+from tudo.conf_prompt import ConfPrompt
 import urwid
 
 

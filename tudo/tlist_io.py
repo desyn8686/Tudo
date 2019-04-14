@@ -1,5 +1,5 @@
 # tlist_io.py
-from tlist import TList
+from tudo.tlist import TList
 import os
 
 # List declaration

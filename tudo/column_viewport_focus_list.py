@@ -1,7 +1,7 @@
 # column_viewport_focus_list.py
 
-from conf_prompt import ConfPrompt
-from tlist_holder import TListHolder
+from tudo.conf_prompt import ConfPrompt
+from tudo.tlist_holder import TListHolder
 from urwid.raw_display import Screen
 import time
 import urwid
