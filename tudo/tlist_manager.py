@@ -63,7 +63,7 @@ class TListManager(urwid.WidgetWrap):
     elif holder.tlist.is_editing:
       return super().keypress(size, key)
     else:
-      if key == 'D':
+      if key == 'meta D':
         holder.prompt_delete()
       elif key == 'L':
         self.move_focus(1)
