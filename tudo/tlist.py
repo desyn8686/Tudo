@@ -133,7 +133,7 @@ class TList(urwid.WidgetWrap):
       self.title.edit()
     elif key == 'g':
       self.group_foot.edit()
-    elif key == 'd':
+    elif key == 'D':
       if self.list_box.focus:
         self.list_box.focus.prompt_delete() 
     elif key == 't':
