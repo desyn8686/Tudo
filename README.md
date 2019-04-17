@@ -1,4 +1,4 @@
-# Tudo v0.5
+# Tudo v0.1
 ## A TUI/CLI To-Do list manager/editor written in Python3.
 Tudo is an intuitive and efficient to-do list tool for command line heroes like yourself.
 
