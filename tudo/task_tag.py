@@ -50,8 +50,8 @@ class TaskTag(urwid.PopUpLauncher):
 
     super().__init__(self.tag_map)
 
-  def build_caption(self):
-    trailing_space = ' '
+  def build_caption(self, expan=False):
+    trailing_space = ' ' if not expan else '*'
     caption_tag = ''
     if not self.strikethrough: caption_tag = self.tag_index
     else: caption_tag = 'X'

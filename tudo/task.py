@@ -68,3 +68,8 @@ class Task(WidgetWrap):
   def move_cursor(self, translation):
     self.pile.focus.move_cursor(translation)
 
+  def render(self, size, focus=False):
+    expan = True if self.expan.length() > 0 else False
+    self.tag.edit.set_caption(self.tag.build_caption(expan))
+    return super().render(size, focus)
+
