@@ -2,11 +2,11 @@
 ## A TUI/CLI To-Do list manager/editor written in Python3.
 Tudo is an intuitive and efficient to-do list tool for command line heroes like yourself.
 
-## Features:
+### Features:
 1. Attractive TUI for editing lists.
 2. Vim like keybinds for efficiency.
 
-## Planned features:
+### Planned features:
 1. CLI interface for quick looking at lists.
 2. CLI and TUI scheduling of alarms and reminders.
 3. Syncing lists with online database.
