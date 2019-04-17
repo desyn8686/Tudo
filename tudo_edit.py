@@ -4,22 +4,44 @@ import urwid
 import signal
 import os
 
-#class SuspendProcess(Exception):
-#  pass
+'''
+This is important!
+We need to catch the SIGTSTP signal
+so we can exit the main loop
+and then properly execute the signal
+by calling it again.
+'''
+class SignalHandler():
 
-#def suspend(signum, frame):
-#  raise SuspendProcess
+  background = False
+  
+  def SIGTSTP(self, signum, frame):
+    signal.signal(signal.SIGTSTP, signal.SIG_DFL)
+    self.background = True
+    raise urwid.ExitMainLoop
 
-#signal.signal(signal.SIGTSTP, suspend)
+def save():
+  list_data = manager.pull_list_data()  
+  tlist_io.save_all(list_data)
 
-tlm = TListManager(tlist_io.load_list_data())
-loop = urwid.MainLoop(tlm, pop_ups=True, handle_mouse=True)
-running = True
-while running:
-  try:
-    loop.run()
-  except KeyboardInterrupt:
-    data = tlm.pull_list_data()  
-    tlist_io.save_all(data)
-    running = False
+sig_handler = SignalHandler()
+PID = os.getpid()
+signal.signal(signal.SIGTSTP, sig_handler.SIGTSTP)
+
+manager = TListManager(tlist_io.load_list_data())
+event = urwid.SelectEventLoop()
+loop = urwid.MainLoop(manager, event_loop=event, pop_ups=True, handle_mouse=True)
+
+while True:
+  with loop.start():
+    try:
+      event.run()
+    except KeyboardInterrupt:
+      save()
+      break
+  if sig_handler.background:
+    os.kill(PID, signal.SIGTSTP)
+    sig_handler.background = False
+    signal.signal(signal.SIGTSTP, sig_handler.SIGTSTP)
+
 print('Goodbye!')
