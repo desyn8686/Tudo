@@ -9,6 +9,8 @@ import urwid
 class TaskTag(urwid.PopUpLauncher):
 
   signals = ['delete']
+  size = None
+
   def __init__(self, tag_index, tag_text, new=False):
     self.new_tag = new
     
@@ -101,6 +103,7 @@ class TaskTag(urwid.PopUpLauncher):
 
   def get_pop_up_parameters(self):
     width = len(self.edit.text)-3 if len(self.edit.text)-3 > 21 else 21 
+    if width > self.size[0]-3: width = self.size[0]-3
     return {'left': 3, 'top': 1, 'overlay_width': width, 'overlay_height': 1} 
 
   def keypress(self, size, key):
@@ -109,3 +112,7 @@ class TaskTag(urwid.PopUpLauncher):
         self.edit.set_edit_text('')
         self.new_tag = False
     super().keypress(size, key)
+
+  def render(self, size, focus=False):
+    self.size = size
+    return super().render(size, focus)
