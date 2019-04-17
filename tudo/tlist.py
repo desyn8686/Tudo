@@ -60,6 +60,19 @@ class TList(urwid.WidgetWrap):
     self.body.remove(obj)
     self.index_tasks()
 
+  def move_task(self, trans):
+    # FIX INDEX ERROR WHEN TRYING TO MOVE TO FAR DOWN OR UP
+    focus_task = self.list_box.focus
+    task_index = focus_task.tag.tag_index
+    new_index = task_index + trans - 1 
+    self.delete(focus_task)
+    if new_index < 0: new_index = 0
+    elif new_index > len(self.tasks): new_index = len(self.tasks)
+    self.tasks.insert(new_index, focus_task)
+    self.body.insert(new_index, focus_task)
+    self.list_box.focus_position = new_index
+    self.index_tasks()
+
   def set_edit(self, editing):
     if editing:
       self.is_editing = True
@@ -97,6 +110,10 @@ class TList(urwid.WidgetWrap):
     elif key == 'k':
      self.move_focus(-1)
     # Move cursor left/right
+    elif key == 'J':
+      self.move_task(1)
+    elif key == 'K':
+      self.move_task(-1)
     elif key == 'h':
       try:
         self.list_box.focus.move_cursor(-1)
@@ -192,6 +209,6 @@ class TList(urwid.WidgetWrap):
   def index_tasks(self):
     index = 1
     for task in self.body:
-      task.tag.tag_index = str(index)
+      task.tag.tag_index = index
       task.tag.edit.set_caption(task.tag.build_caption())
       index += 1

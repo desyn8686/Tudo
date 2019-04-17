@@ -21,7 +21,7 @@ class TaskTag(urwid.PopUpLauncher):
       self.strikethrough = True
     tag_text = tag_text.lstrip(op_char)
 
-    self.tag_index = str(tag_index)
+    self.tag_index = tag_index
     self.tag_text = tag_text
 
     # Default color specs
@@ -55,7 +55,7 @@ class TaskTag(urwid.PopUpLauncher):
   def build_caption(self, expan=False):
     trailing_space = ' ' if not expan else '*'
     caption_tag = ''
-    if not self.strikethrough: caption_tag = self.tag_index
+    if not self.strikethrough: caption_tag = str(self.tag_index)
     else: caption_tag = 'X'
     leading_space = ' ' if len(caption_tag) < 2 else ''
 
