@@ -14,10 +14,16 @@ TASK_OP = '!'
 EXPAN_OP = '-'
 
 HOME = os.path.expanduser('~')
-LIST_DIR = '/Projects/Tudo/.lists/'
+LIST_DIR = '/.local/share/tudo/.lists/'
 PATH = HOME + LIST_DIR
 
 def load_list_data():
+
+  # If this is the first time booting up Tudo
+  # .lists folder does not exist yet
+  if not os.path.isdir(PATH):
+    os.makedirs(PATH)
+
   loaded_lists = []
   for tlist_filename in os.listdir(PATH):
     tlist_data = parse_list(tlist_filename)
