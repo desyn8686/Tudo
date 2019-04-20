@@ -14,15 +14,10 @@ TASK_OP = '!'
 EXPAN_OP = '-'
 
 HOME = os.path.expanduser('~')
-LIST_DIR = '/.local/share/tudo/.lists/'
+LIST_DIR = '/.local/share/tudo/lists/'
 PATH = HOME + LIST_DIR
 
 def load_list_data():
-
-  # If this is the first time booting up Tudo
-  # .lists folder does not exist yet
-  if not os.path.isdir(PATH):
-    os.makedirs(PATH)
 
   loaded_lists = []
   for tlist_filename in os.listdir(PATH):
@@ -66,9 +61,12 @@ def _write_buffer(task_data, data_buffer):
 def save_all(data_tuple):
   tlists = data_tuple[0]
   deleted = data_tuple[1]
+  print('Saving all lists:')
   for tlist_id in deleted:
+    print('  Deleting: ID: ' + tlist_id)
     delete_list(tlist_id)
   for data_dict in tlists:
+    print('  Saving: ID: ' + data_dict['id'])
     save_list(data_dict)
 
 def save_list(tlist_data):
