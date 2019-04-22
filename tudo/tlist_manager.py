@@ -73,6 +73,10 @@ class TListManager(urwid.WidgetWrap):
         self.build_new()
       else: return super().keypress(size, key)
 
+  def is_editing(self):
+    holder = self.columns.focus
+    return holder.tlist.is_editing
+
   def render(self, size, focus=False):
     self.pack()
     return super().render(size, focus)

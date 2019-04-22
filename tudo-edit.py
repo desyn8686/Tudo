@@ -46,7 +46,6 @@ manager = TListManager(tlist_io.load_list_data())
 pane = OverlayPane(manager)
 sig_handler = SignalHandler(pane)
 
-urwid.connect_signal(manager, 'quit', quit)
 urwid.connect_signal(pane, 'save', sig_handler.save)
 
 event = urwid.SelectEventLoop()

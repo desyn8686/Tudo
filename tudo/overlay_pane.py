@@ -16,15 +16,23 @@ class OverlayPane(urwid.WidgetWrap):
       save_overlay = _SaveOverlay(self.manager)
       urwid.connect_signal(save_overlay, 'close', self.save_callback)
       self.holder.original_widget = save_overlay
+    elif overlay == 'reminder':
+      reminder_overlay = _ReminderOverlay(self.manager)
+      self.holder.original_widget = reminder_overlay
 
   def save_callback(self, obj, arg):
       self.set_overlay(None)
       self._emit('save', arg)
 
   def keypress(self, size, key):
-    if key == 'Q':
-      self.set_overlay('save')
+    if not self.manager.is_editing():
+      if key == 'Q':
+        self.set_overlay('save')
+      elif key == 'R':
+        self.set_overlay('reminder')
+      else: return super().keypress(size, key)
     else: return super().keypress(size, key)
+
       
 class _SaveOverlay(urwid.WidgetWrap):
  
@@ -50,3 +58,13 @@ class _SaveOverlay(urwid.WidgetWrap):
       self._emit('close', 'no')
     elif key == 'esc':
       self._emit('close', 'abort')
+
+class _ReminderOverlay(urwid.WidgetWrap):
+  def __init__(self, manager):
+    init_prompt = urwid.Text('Set a reminder for:', 'center')
+    body = urwid.SimpleListWalker([init_prompt])
+    list_box = urwid.ListBox(body)
+    box_adapter = urwid.BoxAdapter(list_box, len(body))
+    line_box = urwid.LineBox(box_adapter)
+    overlay = urwid.Overlay(line_box, manager, 'center', 28, 'middle', 'pack') 
+    super().__init__(overlay)
