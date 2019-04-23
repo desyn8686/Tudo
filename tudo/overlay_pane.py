@@ -1,5 +1,6 @@
 # overlay_pane.py
 from tudo.reminder import Reminder
+from tudo.subject_selector import SubjectSelector
 import urwid
 
 class OverlayPane(urwid.WidgetWrap):
@@ -76,21 +77,19 @@ class _ReminderOverlay(urwid.WidgetWrap):
 
     self.select_subject()
 
+  def signal_handler(self, obj, args):
+    if args[0] == 'subject':
+      self.set_subject(args[1], args[2])
+
   def select_subject(self):
     subject = SubjectSelector(self.manager)
     urwid.connect_signal(subject, 'select', self.signal_handler)
     self.holder.original_widget = subject
     self.box_adapter.height = self.get_height()
   
-  def set_subject(self, subject, contents):
-    print(subject)
-
-  def signal_handler(self, obj, args):
-    if args[0] == 'subject':
-      self.set_subject(args[1], args[2])
-
-  def frequency(self):
-    every = urwid.Text('every', align='center')
+  def set_subject(self, callback_string, obj_id):
+    self.reminder.reminder_type = callback_string
+    self.reminder.reminder_id = obj_id
 
   def get_height(self):
     height = 0
@@ -100,67 +99,3 @@ class _ReminderOverlay(urwid.WidgetWrap):
     except AttributeError:
       pass
     return height
-
-
-class SelectableText(urwid.Text):
-  
-  _selectable = True
-
-  def __init__(self, text, return_text):
-    self.return_text = return_text
-    super().__init__(text)
-
-  def keypress(self, size, key):
-    pass
-
-
-class SubjectSelector(urwid.WidgetWrap):
-
-  signals = ['select']
-  def __init__(self, manager):
-    self.manager = manager
-    div = urwid.Text('----------------------------')
-    #div = urwid.Text('------')
-    task = SelectableText("Task-: " +\
-                      self.manager.get_focus('task').get_text(),
-                      self.manager.get_focus('task'))#, 'center')
-    task = urwid.AttrMap(task, attr_map=urwid.AttrSpec('', ''), focus_map=urwid.AttrSpec('h10', ''))
-    tlist = SelectableText('List-: ' +\
-                       self.manager.get_focus('list').name,
-                       self.manager.get_focus('list'))#, 'center')
-    tlist = urwid.AttrMap(tlist, attr_map=urwid.AttrSpec('', ''), focus_map=urwid.AttrSpec('h10', ''))
-    group = SelectableText('Group: ' +\
-                       self.manager.get_focus('group')[0],
-                       self.manager.get_focus('group')[1])#, 'center')
-    group = urwid.AttrMap(group, attr_map=urwid.AttrSpec('', ''), focus_map=urwid.AttrSpec('h10', ''))
-    self.body = urwid.SimpleListWalker([task, div, tlist, div, group])
-    self.list_box = urwid.ListBox(self.body)
-    self.box_adapter = urwid.BoxAdapter(self.list_box, self.get_height())
-    super().__init__(urwid.Filler(self.box_adapter))
-
-  def keypress(self, size, key):
-    if key == 'k':
-      try:
-        self.list_box.focus_position -= 2
-      except IndexError:
-        pass
-    elif key == 'j':
-      try:
-        self.list_box.focus_position += 2
-      except IndexError:
-        pass
-    elif key == ' ' or key == 'enter':
-      self._emit('select', ['subject', self.list_box.focus.base_widget.return_text, self.list_box.focus.base_widget.text])
-
-  def get_height(self):
-    height = 0
-    for line in self.body:
-      height += line.pack((30,))[1] 
-    return height
-
-  def height(self):
-    return self.box_adapter.height
-
-  def render(self, size, focus=False):
-    return super().render(size, focus)
-      

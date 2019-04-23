@@ -80,15 +80,15 @@ class TListManager(urwid.WidgetWrap):
   def get_focus(self, obj_type):
     tlist = self.columns.focus.tlist
     if obj_type == "task":
-      return tlist.get_focus()
+      return tlist.get_focus().tag.get_text(), [tlist.id, tlist.get_focus().id]
     elif obj_type == 'list':
-      return tlist
+      return tlist.name, tlist.id
     elif obj_type == 'group':
       group = tlist.group
       group_list = []
       for tlist in self.tlists.contents:
         if tlist.base_widget.group == group:
-          group_list.append(tlist) 
+          group_list.append(tlist.base_widget.id) 
       return tlist.base_widget.group, group_list
 
   def render(self, size, focus=False):

@@ -4,6 +4,8 @@ from datetime import datetime, timedelta
 class Reminder():
 
   def __init__(self):
+    self.reminder_type = None
+    self.reminder_id = []
     # If not repeat alarm deletes itself after going off
     self.repeat = False
     # Date building variables

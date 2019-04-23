@@ -183,8 +183,7 @@ class TList(urwid.WidgetWrap):
 
   def get_focus(self):
     task = self.list_box.focus
-    tag = task.tag
-    return tag
+    return task
     
 
   def move_focus(self, trans):
