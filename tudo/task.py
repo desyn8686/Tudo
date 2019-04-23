@@ -3,6 +3,7 @@ from tudo.task_tag import TaskTag
 from tudo.task_expan import TaskExpan
 from urwid import WidgetWrap, Pile 
 import urwid
+import uuid
 
 class Task(WidgetWrap):
 
@@ -15,8 +16,11 @@ class Task(WidgetWrap):
     if not self.task_data:
       self.new_task = True
       self.task_data = {}
+      self.id = uuid.uuid4().hex
       self.task_data['tag'] = 'o<empty tag>' 
       self.task_data['expan'] = []
+    else:
+      self.id = self.task_data['id']
 
     # Build widget stack
     self.tag = TaskTag(tag_index, self.task_data['tag'], self.new_task)

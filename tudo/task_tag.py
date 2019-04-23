@@ -19,8 +19,8 @@ class TaskTag(urwid.PopUpLauncher):
       self.strikethrough = False
     elif op_char == 'x':
       self.strikethrough = True
-    tag_text = tag_text.lstrip(op_char)
 
+    tag_text = tag_text.lstrip(op_char)
     self.tag_index = tag_index
     self.tag_text = tag_text
 

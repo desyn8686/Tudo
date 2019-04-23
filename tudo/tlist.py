@@ -85,11 +85,11 @@ class TList(urwid.WidgetWrap):
     data = {'name': self.title.get_title(), 'group': self.group_foot.get_group(), 'id': self.id, 'tasks': []}
     for task in self.tasks:
       task_dict = {} 
+      task_dict['id'] = task.id
       if task.tag.strikethrough:
         task_dict['tag'] = 'x' + task.tag.get_text()
       else:
         task_dict['tag'] = 'o' + task.tag.get_text()
-
       task_dict['expan'] = task.expan.get_lines()
       data['tasks'].append(task_dict)
 
@@ -180,6 +180,11 @@ class TList(urwid.WidgetWrap):
         self.group = self.group_foot.edit.edit_text
         self.list_frame.focus_position = 'body'
     else: return super().keypress(size, key)
+
+  def get_focus(self):
+    task = self.list_box.focus
+    tag = task.tag
+    return tag
     
 
   def move_focus(self, trans):

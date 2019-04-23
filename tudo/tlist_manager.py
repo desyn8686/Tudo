@@ -77,6 +77,20 @@ class TListManager(urwid.WidgetWrap):
     holder = self.columns.focus
     return holder.tlist.is_editing
 
+  def get_focus(self, obj_type):
+    tlist = self.columns.focus.tlist
+    if obj_type == "task":
+      return tlist.get_focus()
+    elif obj_type == 'list':
+      return tlist
+    elif obj_type == 'group':
+      group = tlist.group
+      group_list = []
+      for tlist in self.tlists.contents:
+        if tlist.base_widget.group == group:
+          group_list.append(tlist) 
+      return tlist.base_widget.group, group_list
+
   def render(self, size, focus=False):
     self.pack()
     return super().render(size, focus)

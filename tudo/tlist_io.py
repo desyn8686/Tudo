@@ -1,6 +1,7 @@
 # tlist_io.py
 from tudo.tlist import TList
 import os
+import uuid
 
 # List declaration
 LIST_OP = '@'
@@ -10,6 +11,8 @@ HEX_OP = '#'
 GROUP_OP = '^'
 # Task declaration
 TASK_OP = '!'
+# Task ID
+TASK_ID = '$'
 # Expan declaration
 EXPAN_OP = '-'
 
@@ -44,10 +47,13 @@ def parse_list(filename):
         tlist_data['id'] = line
       elif op_char == GROUP_OP:
         tlist_data['group'] = line
-      elif op_char == TASK_OP:
+      elif op_char == TASK_ID:
         if data_buffer: _write_buffer(tlist_data['tasks'], data_buffer)
-        data_buffer['tag'] = line
+        if line == 'NONE': line = uuid.uuid4().hex
+        data_buffer['id'] = line
         data_buffer['expan'] = []
+      elif op_char == TASK_OP:
+        data_buffer['tag'] = line
       elif op_char == EXPAN_OP:
         data_buffer['expan'].append(line)
 
@@ -76,6 +82,7 @@ def save_list(tlist_data):
     f.write(GROUP_OP + tlist_data['group'] + '\n')
     f.write(HEX_OP + tlist_data['id'] + '\n')
     for task in tlist_data['tasks']:
+      f.write(TASK_ID + task['id'] + '\n')
       f.write(TASK_OP + task['tag'] + '\n')
       for line in task['expan']:
         f.write(EXPAN_OP + line + '\n')
