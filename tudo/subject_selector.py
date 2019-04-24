@@ -54,7 +54,8 @@ class SubjectSelector(urwid.WidgetWrap):
       self._emit('select', 
                  ['subject',
                  self.list_box.focus.base_widget.callback_string,
-                 self.list_box.focus.base_widget.obj_id])
+                 self.list_box.focus.base_widget.obj_id,
+                 self.list_box.focus.base_widget.text])
 
   def get_height(self):
     height = 0

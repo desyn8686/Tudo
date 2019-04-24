@@ -86,8 +86,8 @@ class TListManager(urwid.WidgetWrap):
     elif obj_type == 'group':
       group = tlist.group
       group_list = []
-      for tlist in self.tlists.contents:
-        if tlist.base_widget.group == group:
+      for _tlist in self.tlists.contents:
+        if _tlist.original_widget.group == group:
           group_list.append(tlist.base_widget.id) 
       return tlist.base_widget.group, group_list
 
