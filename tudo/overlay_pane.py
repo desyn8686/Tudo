@@ -76,13 +76,17 @@ class _ReminderOverlay(urwid.WidgetWrap):
     overlay = urwid.Overlay(line_box, manager, 'center', 30, 'middle', 'pack') 
     super().__init__(overlay)
 
-    self.select_subject()
+    self.start_reminder()
 
   def signal_handler(self, obj, args):
     if args[0] == 'subject':
       self.set_subject(args[1], args[2], args[3])
+    if args[0] == 'frequency':
+      self.set_frequency(args[1]) 
+    if args[0] == 'catagory':
+      self.set_catagory(args[1])
 
-  def select_subject(self):
+  def start_reminder(self):
     subject = SubjectSelector(self.manager)
     urwid.connect_signal(subject, 'select', self.signal_handler)
     self.holder.original_widget = subject
@@ -94,9 +98,33 @@ class _ReminderOverlay(urwid.WidgetWrap):
     self.header_text = self.header_text + subject + '\n'
     self.header.set_text(self.header_text + '------------')
     self.box_adapter.height = self.get_height()
-    self.holder.original_widget = FrequencySelector()
+
+    frequency = FrequencySelector()
+    urwid.connect_signal(frequency, 'select', self.signal_handler)
+
+    self.holder.original_widget = frequency
     self.box_adapter.height = self.get_height()
 
+  def set_frequency(self, frequency):
+    self.header_text = self.header_text + frequency
+    self.header.set_text(self.header_text + '\n------------')
+    if frequency == 'every':
+      self.reminder.repeat = True
+    elif frequency == 'once':
+      catagory = CatagorySelector()  
+      urwid.connect_signal(catagory, 'select', self.signal_handler)
+      self.holder.original_widget = catagory 
+      self.box_adapter.height = self.get_height()
+
+  def set_catagory(self, catagory):
+    self.header_text = self.header_text + ' ' + catagory 
+    self.header.set_text(self.header_text + '\n------------')
+    if catagory == 'in':
+      pass
+    elif catagory == 'at':
+      pass
+    elif catagory == 'on':
+      pass
 
   def get_height(self):
     height = 0
@@ -111,13 +139,13 @@ class FrequencySelector(urwid.WidgetWrap):
     
   signals=['select']
   def __init__(self):
-    self.once = 'Once'
+    self.once = 'once...'
     self.once = urwid.Text(self.once, 'center')
     self.once._selectable = True
     self.once = urwid.AttrMap(self.once,
                               attr_map=urwid.AttrSpec('', ''),
                               focus_map=urwid.AttrSpec('h10', ''))
-    self.every = 'Every'
+    self.every = 'every...'
     self.every = urwid.Text(self.every, 'center')
     self.every._selectable = True
     self.every = urwid.AttrMap(self.every,
@@ -137,6 +165,50 @@ class FrequencySelector(urwid.WidgetWrap):
         self.columns.focus_position += 1
       except IndexError:
         pass
+    elif key == 'enter' or key == ' ':
+      self._emit('select', ['frequency', self.columns.focus.base_widget.text.rstrip('...').lower()])
+
+  def get_height(self):
+    return 1
+
+class CatagorySelector(urwid.WidgetWrap):
+
+  signals=['select']
+  def __init__(self):
+    self.in_delta = 'in...'
+    self.in_delta = urwid.Text(self.in_delta, 'center')
+    self.in_delta._selectable = True
+    self.in_delta= urwid.AttrMap(self.in_delta,
+                              attr_map=urwid.AttrSpec('', ''),
+                              focus_map=urwid.AttrSpec('h10', ''))
+    self.at_time= 'at...'
+    self.at_time= urwid.Text(self.at_time, 'center')
+    self.at_time._selectable = True
+    self.at_time= urwid.AttrMap(self.at_time,
+                              attr_map=urwid.AttrSpec('', ''),
+                              focus_map=urwid.AttrSpec('h10', ''))
+    self.on_date = 'on...'
+    self.on_date = urwid.Text(self.on_date, 'center')
+    self.on_date._selectable = True
+    self.on_date = urwid.AttrMap(self.on_date,
+                              attr_map=urwid.AttrSpec('', ''),
+                              focus_map=urwid.AttrSpec('h10', ''))
+    self.columns = urwid.Columns([self.in_delta, self.at_time, self.on_date])
+    super().__init__(urwid.Filler(self.columns))
+    
+  def keypress(self, size, key):
+    if key == 'h':
+      try:
+        self.columns.focus_position -= 1
+      except IndexError:
+        pass
+    elif key == 'l':
+      try:
+        self.columns.focus_position += 1
+      except IndexError:
+        pass
+    elif key == 'enter' or key == ' ':
+      self._emit('select', ['catagory', self.columns.focus.base_widget.text.rstrip('...').lower()])
 
   def get_height(self):
     return 1
