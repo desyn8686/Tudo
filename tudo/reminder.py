@@ -12,6 +12,8 @@ class Reminder():
     self.year = None
     self.month = None
     self.day = None
+    self.hour = None
+    self.minute = None
     # Delta variables
     self.in_days = 0
     self.in_hours = 0
@@ -29,7 +31,9 @@ class Reminder():
     if not self.year: self.year = now.year
     if not self.month: self.month = now.month
     if not self.day: self.day = now.day
-    dt_obj = datetime(self.year, self.month, self.day)
+    if not self.hour: self.hour = now.hour
+    if not self.minute: self.minute = now.minute
+    dt_obj = datetime(self.year, self.month, self.day, self.hour, self.minute)
     dt_obj = dt_obj + timedelta(
         days=self.in_days,
         hours=self.in_hours,

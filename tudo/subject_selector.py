@@ -6,20 +6,20 @@ class SubjectSelector(urwid.WidgetWrap):
   signals = ['select']
   def __init__(self, manager):
     self.manager = manager
-    div = urwid.Text('----------------------------')
-    #div = urwid.Text('------')
+    #div = urwid.Text('----------------------------')
+    div = urwid.Text('------')
     task_info = self.manager.get_focus('task')
     list_info = self.manager.get_focus('list')
     group_info = self.manager.get_focus('group')
 
-    task = SubjectText("Task-: " +\
+    task = SubjectText("-Task: " +\
                           task_info[0],
                           task_info[1],
                           'task')
     task = urwid.AttrMap(task,
                          attr_map=urwid.AttrSpec('', ''),
                          focus_map=urwid.AttrSpec('h10', ''))
-    tlist = SubjectText('List-: ' +\
+    tlist = SubjectText('-List: ' +\
                            list_info[0], 
                            list_info[1], 
                            'list')
@@ -55,12 +55,12 @@ class SubjectSelector(urwid.WidgetWrap):
                  ['subject',
                  self.list_box.focus.base_widget.callback_string,
                  self.list_box.focus.base_widget.obj_id,
-                 self.list_box.focus.base_widget.text])
+                 self.list_box.focus.base_widget.text.lstrip('-')])
 
   def get_height(self):
     height = 0
     for line in self.body:
-      height += line.pack((30,))[1] 
+      height += line.pack((28,))[1] 
     return height
 
   def height(self):

@@ -67,8 +67,9 @@ class _ReminderOverlay(urwid.WidgetWrap):
     self.reminder = Reminder() 
     self.manager = manager
     self.header_text = 'Set a reminder for:\n'
-    self.header = urwid.Text('Set a reminder for:\n' +\
-                             '------------', 'center')
+    self.div = '\n--------------------------'
+    self.header = urwid.Text('Set a reminder for:' +\
+                             self.div, 'center')
     self.holder = urwid.WidgetPlaceholder(urwid.Filler(urwid.Text('')))
     self.frame = urwid.Frame(self.holder, header=self.header)
     self.box_adapter = urwid.BoxAdapter(self.frame, self.get_height())
@@ -81,10 +82,12 @@ class _ReminderOverlay(urwid.WidgetWrap):
   def signal_handler(self, obj, args):
     if args[0] == 'subject':
       self.set_subject(args[1], args[2], args[3])
-    if args[0] == 'frequency':
+    elif args[0] == 'frequency':
       self.set_frequency(args[1]) 
-    if args[0] == 'catagory':
-      self.set_catagory(args[1])
+    elif args[0] == 'category':
+      self.set_category(args[1])
+    elif args[0] == 'in':
+      self.set_in_delta(args[1], args[2])
 
   def start_reminder(self):
     subject = SubjectSelector(self.manager)
@@ -95,8 +98,8 @@ class _ReminderOverlay(urwid.WidgetWrap):
   def set_subject(self, callback_string, obj_id, subject):
     self.reminder.reminder_type = callback_string
     self.reminder.reminder_id = obj_id
-    self.header_text = self.header_text + subject + '\n'
-    self.header.set_text(self.header_text + '------------')
+    self.header_text = [self.header_text, (urwid.AttrSpec('h11', ''), subject)]
+    self.header.set_text([self.header_text, self.div]) 
     self.box_adapter.height = self.get_height()
 
     frequency = FrequencySelector()
@@ -106,29 +109,66 @@ class _ReminderOverlay(urwid.WidgetWrap):
     self.box_adapter.height = self.get_height()
 
   def set_frequency(self, frequency):
-    self.header_text = self.header_text + frequency
-    self.header.set_text(self.header_text + '\n------------')
+    self.header_text = [self.header_text, ' ', (urwid.AttrSpec('h85', ''), frequency)]
+    self.header.set_text([self.header_text, self.div])
     if frequency == 'every':
       self.reminder.repeat = True
     elif frequency == 'once':
-      catagory = CatagorySelector()  
-      urwid.connect_signal(catagory, 'select', self.signal_handler)
-      self.holder.original_widget = catagory 
+      category = CatagorySelector()  
+      urwid.connect_signal(category, 'select', self.signal_handler)
+      self.holder.original_widget = category 
       self.box_adapter.height = self.get_height()
 
-  def set_catagory(self, catagory):
-    self.header_text = self.header_text + ' ' + catagory 
-    self.header.set_text(self.header_text + '\n------------')
-    if catagory == 'in':
+  def set_category(self, category):
+    self.header_text = [self.header_text, ' ', category]
+    self.header.set_text([self.header_text, self.div])
+    if category == 'in':
+      in_selector = InSelector()
+      urwid.connect_signal(in_selector, 'select', self.signal_handler)
+      self.holder.original_widget = in_selector
+    elif category == 'at':
       pass
-    elif catagory == 'at':
+    elif category == 'on':
       pass
-    elif catagory == 'on':
-      pass
+    self.box_adapter.height = self.get_height()
+
+  def set_in_delta(self, hours, minutes):
+    delta_string = ''
+    days = 0
+
+    hours = int(hours)
+    minutes = int(minutes)
+
+    hours += int(minutes/60)
+    minutes = minutes%60
+    days += int(hours/24)
+    hours = hours%24
+
+    if days > 0:
+      self.reminder.in_days = days
+      delta_string = [delta_string, str(days), ' days']
+    if hours > 0:
+      self.reminder.in_hours = hours 
+      if days > 0: delta_string = [delta_string, ', ']
+      delta_string = [delta_string, str(hours), ' hours']
+    if minutes > 0:
+      self.reminder.in_mins = minutes 
+      if hours > 0: delta_string = [delta_string, ', and ']
+      delta_string = [delta_string, str(minutes), ' minutes.']
+      
+    self.reminder.build()
+    self.header_text = [self.header_text, ' ', (urwid.AttrSpec('h166', ''), delta_string)]
+    self.header_text = [self.header_text, '\n', '(', self.reminder.dt_string, ')']
+    self.header.set_text([self.header_text, self.div])
+
+    conf_selector = ConfirmationSelector()
+    urwid.connect_signal(conf_selector, 'select', self.signal_handler)
+    self.holder.original_widget = conf_selector
+    self.box_adapter.height = self.get_height()
 
   def get_height(self):
     height = 0
-    height += self.header.pack((30,))[1]
+    height += self.header.pack((28,))[1]
     try:
       height += self.holder.original_widget.get_height()
     except AttributeError:
@@ -151,7 +191,7 @@ class FrequencySelector(urwid.WidgetWrap):
     self.every = urwid.AttrMap(self.every,
                               attr_map=urwid.AttrSpec('', ''),
                               focus_map=urwid.AttrSpec('h10', ''))
-    self.columns = urwid.Columns([self.every, self.once])
+    self.columns = urwid.Columns([self.once, self.every])
     super().__init__(urwid.Filler(self.columns))
 
   def keypress(self, size, key):
@@ -208,7 +248,102 @@ class CatagorySelector(urwid.WidgetWrap):
       except IndexError:
         pass
     elif key == 'enter' or key == ' ':
-      self._emit('select', ['catagory', self.columns.focus.base_widget.text.rstrip('...').lower()])
+      self._emit('select', ['category', self.columns.focus.base_widget.text.rstrip('...').lower()])
 
   def get_height(self):
     return 1
+
+class InSelector(urwid.WidgetWrap):
+
+  signals=['select']
+  def __init__(self):
+    self.hours_edit = urwid.IntEdit('  Hours: ')
+    self.minutes_edit = urwid.IntEdit('Minutes: ')
+
+    self.body = urwid.SimpleListWalker([self.hours_edit, self.minutes_edit])
+    self.list_box = urwid.ListBox(self.body)
+    super().__init__(urwid.Filler(urwid.BoxAdapter(self.list_box, 3)))
+
+  def get_height(self):
+    return 2 
+
+  def keypress(self, size, key):
+    if key == 'k':
+      try:
+        self.list_box.focus_position -= 1
+      except IndexError:
+        pass
+    elif key == 'j':
+      try:
+        self.list_box.focus_position += 1
+      except IndexError:
+        pass
+    elif key == 'enter' or key == ' ':
+      try:
+        self.list_box.focus_position += 1
+      except IndexError:
+        self._emit('select', ['in', self.hours_edit.edit_text, self.minutes_edit.edit_text])
+    elif key == 'h' or key == 'left':
+      try:
+        self.list_box.focus.edit_pos -= 1
+      except IndexError:
+        pass
+    elif key == 'l' or key == 'right':
+      try:
+        self.list_box.focus.edit_pos += 1
+      except IndexError:
+        pass
+    else: 
+      focus = self.list_box.focus.base_widget
+      if focus.valid_char(key) and focus.edit_text == '0':
+        focus.set_edit_text('')
+      num_length = len(self.list_box.focus.edit_text)
+      if key == 'backspace' or key == 'delete': return super().keypress(size, key)
+      else: 
+        if num_length < 3: return super().keypress(size, key)
+
+
+  def render(self, size, focus=False):
+    for edit in self.body:
+      if edit.edit_text == '':
+        edit.set_edit_text('0')
+    return super().render(size, focus)
+
+class ConfirmationSelector(urwid.WidgetWrap):
+
+  signals=['select']
+  def __init__(self):
+    self.confirm_prompt = urwid.Text('Set reminder?', 'center') 
+    self.yes = 'yes'
+    self.yes = urwid.Text(self.yes, 'center')
+    self.yes._selectable = True
+    self.yes= urwid.AttrMap(self.yes,
+                              attr_map=urwid.AttrSpec('', ''),
+                              focus_map=urwid.AttrSpec('h10', ''))
+    self.no = 'no'
+    self.no = urwid.Text(self.no, 'center')
+    self.no._selectable = True
+    self.no = urwid.AttrMap(self.no,
+                              attr_map=urwid.AttrSpec('', ''),
+                              focus_map=urwid.AttrSpec('h10', ''))
+    self.columns = urwid.Columns([self.yes, self.no])
+    self.body = urwid.SimpleListWalker([self.confirm_prompt, self.columns])
+    self.list_box = urwid.ListBox(self.body)
+    super().__init__(self.list_box)
+    
+  def get_height(self):
+    return 2
+    
+  def keypress(self, size, key):
+    if key == 'h':
+      try:
+        self.columns.focus_position -= 1
+      except IndexError:
+        pass
+    elif key == 'l':
+      try:
+        self.columns.focus_position += 1
+      except IndexError:
+        pass
+    elif key == 'enter' or key == ' ':
+      pass
