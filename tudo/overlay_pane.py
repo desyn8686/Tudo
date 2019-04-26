@@ -1,6 +1,8 @@
 # overlay_pane.py
 from tudo.reminder import Reminder
 from tudo.subject_selector import SubjectSelector
+from calendar import monthrange, IllegalMonthError
+from datetime import datetime
 import urwid
 
 class OverlayPane(urwid.WidgetWrap):
@@ -489,16 +491,100 @@ class StartingSelector(urwid.WidgetWrap):
   def get_height(self):
     return 1
 
+
 class OnSelector(urwid.WidgetWrap):
 
   signals = ['select']
   def __init__(self):
-    spacer = urwid.Text(' - ')
-    self.month = urwid.Edit(edit_text='MM', align='center')
-    self.day = urwid.Edit(edit_text='DD', align='center')
-    self.year = urwid.Edit(edit_text='YY', align='center')
-    self.columns = urwid.Columns([(2, self.month), (2, self.day), (2, self.year)])
-    super().__init__(urwid.Filler(urwid.Padding(self.columns, align='center', width=6)))
+    now = datetime.now()
+
+    spacer = urwid.Text('-')
+    self.month = urwid.IntEdit(default=now.month)
+    self.month = urwid.AttrMap(self.month, urwid.AttrSpec('', 'h240'))
+    self.month = urwid.Padding(self.month, 'right', 2, right=1)
+    
+    self.day = urwid.IntEdit(default=now.day)
+    self.day = urwid.AttrMap(self.day, urwid.AttrSpec('', 'h240'))
+    self.day = urwid.Padding(self.day, 'center', 2, left=1, right=1)
+
+    self.year = urwid.IntEdit(default=str(now.year)[2:4])
+    self.year = urwid.AttrMap(self.year, urwid.AttrSpec('', 'h240'))
+    self.year = urwid.Padding(self.year, 'left', 2, left=1)
+
+    self.input_columns = urwid.Columns([self.month,
+                                        (1, spacer),
+                                        (4, self.day),
+                                        (1, spacer),
+                                        self.year])
+
+    self.mm = urwid.Text('MM ', 'right')
+    self.dd = urwid.Text(' DD ', 'center')
+    self.yy = urwid.Text(' YY', 'left')
+    self.guide_columns = urwid.Columns([self.mm, (4, self.dd), self.yy], 1)
+
+    self.body = urwid.SimpleListWalker([self.input_columns, self.guide_columns])
+    self.list_box = urwid.ListBox(self.body)
+    super().__init__(urwid.Filler(urwid.BoxAdapter(self.list_box, 28)))
+
+  def render(self, size, focus=False):
+    focus = self.input_columns.focus.base_widget
+    if len(focus.edit_text.lstrip('0')) == 0:
+      focus.edit_text = '00'
+    elif len(focus.edit_text.lstrip('0')) == 1:
+      focus.edit_text = '0' + focus.edit_text.lstrip('0')
+
+    now = datetime.now()
+    year = 0
+    if int(str(now.year)[2:4]) > int(self.year.base_widget.edit_text):
+      year = int(str(now.year + 100)[0:2] + self.year.base_widget.edit_text) 
+    else: 
+      year = int(str(now.year)[0:2] + self.year.base_widget.edit_text) 
+
+    for widget_tup in self.input_columns.contents:
+      widget = widget_tup[0]
+      if widget.base_widget != focus:
+        if widget == self.month:
+          if int(self.month.base_widget.edit_text) > 12: self.month.base_widget.edit_text = '12'
+        if widget == self.day:
+          try:
+            max_days = monthrange(year, int(self.month.base_widget.edit_text))[1]
+            if int(self.day.base_widget.edit_text) > max_days: 
+              self.day.base_widget.edit_text = str(max_days)
+          except IllegalMonthError:
+            pass
+        if widget != self.year:
+          try:
+            if widget.base_widget.edit_text == '00':
+              widget.base_widget.edit_text = '01'
+          except AttributeError:
+            pass
+
+    if focus.edit_pos != 1:
+      focus.edit_pos = 1
+
+    return super().render(size, focus)
+
+  def keypress(self, size, key):
+    focus = self.input_columns.focus.base_widget
+    if key == 'l' or key == 'right':
+      try:
+        self.input_columns.focus_position += 2
+      except IndexError:
+        pass
+    elif key == 'h' or key == 'left':
+      try:
+        self.input_columns.focus_position -= 2
+      except IndexError:
+        pass
+    elif key == 'backspace':
+      if focus.edit_pos == 1 and len(focus.edit_text) == 2:
+        return super().keypress(size, 'delete')
+      else: return super().keypress(size, key)
+    elif key == 'delete':
+      return super().keypress(size, key)
+    elif len(focus.edit_text.lstrip('0')) < 2:
+      focus.set_edit_text(focus.edit_text.lstrip('0'))
+      return super().keypress(size, key)
 
   def get_height(self):
-    return 1
+    return 2 
