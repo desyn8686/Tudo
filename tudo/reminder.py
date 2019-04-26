@@ -8,6 +8,7 @@ class Reminder():
     self.reminder_id = []
     # If not repeat alarm deletes itself after going off
     self.repeat = False
+    self.repeat_freq = None
     # Date building variables
     self.year = None
     self.month = None
