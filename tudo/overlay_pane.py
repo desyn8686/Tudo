@@ -100,6 +100,8 @@ class _ReminderOverlay(urwid.WidgetWrap):
       self.set_every_delta(args[1])
     elif args[0] == 'starting':
       self.set_starting(args[1])
+    elif args[0] == 'on':
+      self.set_on_date(args[1], args[2], args[3])
 
   def set_subject(self, callback_string, obj_id, subject):
     self.reminder.reminder_type = callback_string
@@ -211,9 +213,13 @@ class _ReminderOverlay(urwid.WidgetWrap):
 
   def set_starting(self, starting):
     if starting == 'today':
-      self.header_text = [self.header_text, ' ', (urwid.AttrSpec('h166', ''), 'today'), ' at']  
+      self.header_text = [self.header_text, ' ', (urwid.AttrSpec('h166', ''), 'today')] 
+      self.header_text = [self.header_text, ' ', (urwid.AttrSpec('h85', ''), 'at')]  
     elif starting == 'on':
-      self.header_text = [self.header_text, ' ', 'on']  
+      self.header_text = [self.header_text, ' ', (urwid.AttrSpec('h85', ''), 'on')]  
+      on_selector = OnSelector()
+      urwid.connect_signal(on_selector, 'select', self.signal_handler)
+      self.holder.original_widget = on_selector
     elif starting == 'now':
       self.reminder.build()
       self.header_text = [self.header_text, ' ', (urwid.AttrSpec('h166', ''), 'now.')]  
@@ -221,6 +227,20 @@ class _ReminderOverlay(urwid.WidgetWrap):
       conf_selector = ConfirmationSelector()
       urwid.connect_signal(conf_selector, 'select', self.signal_handler)
       self.holder.original_widget = conf_selector
+
+    self.header.set_text([self.header_text, self.div])
+    self.box_adapter.height = self.get_height()
+  
+  def set_on_date(self, year, month, day):
+    now = datetime.now()
+    if int(str(now.year)[2:4]) > int(year):
+      year = int(str(now.year + 100)[0:2] + year) 
+    else: 
+      year = int(str(now.year)[0:2] + year) 
+
+    date = datetime.strptime(str(year) + month + day, '%Y%m%d').date().strftime('%m-%d-%Y')
+    self.header_text = [self.header_text, ' ', (urwid.AttrSpec('h166', ''), date)]
+    self.header_text = [self.header_text, ' ', (urwid.AttrSpec('h85', ''), 'at')]  
 
     self.header.set_text([self.header_text, self.div])
     self.box_adapter.height = self.get_height()
@@ -500,15 +520,12 @@ class OnSelector(urwid.WidgetWrap):
 
     spacer = urwid.Text('-')
     self.month = urwid.IntEdit(default=now.month)
-    self.month = urwid.AttrMap(self.month, urwid.AttrSpec('', 'h240'))
     self.month = urwid.Padding(self.month, 'right', 2, right=1)
     
     self.day = urwid.IntEdit(default=now.day)
-    self.day = urwid.AttrMap(self.day, urwid.AttrSpec('', 'h240'))
     self.day = urwid.Padding(self.day, 'center', 2, left=1, right=1)
 
     self.year = urwid.IntEdit(default=str(now.year)[2:4])
-    self.year = urwid.AttrMap(self.year, urwid.AttrSpec('', 'h240'))
     self.year = urwid.Padding(self.year, 'left', 2, left=1)
 
     self.input_columns = urwid.Columns([self.month,
@@ -582,6 +599,11 @@ class OnSelector(urwid.WidgetWrap):
       else: return super().keypress(size, key)
     elif key == 'delete':
       return super().keypress(size, key)
+    elif key == ' ' or key == 'return':
+      month = self.month.base_widget.edit_text
+      day = self.day.base_widget.edit_text
+      year = self.year.base_widget.edit_text
+      self._emit('select', ['on', year, month, day])
     elif len(focus.edit_text.lstrip('0')) < 2:
       focus.set_edit_text(focus.edit_text.lstrip('0'))
       return super().keypress(size, key)
