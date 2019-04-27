@@ -102,6 +102,8 @@ class _ReminderOverlay(urwid.WidgetWrap):
       self.set_starting(args[1])
     elif args[0] == 'on':
       self.set_on_date(args[1], args[2], args[3])
+    elif args[0] == 'at':
+      self.set_at_time(args[1], args[2])
 
   def set_subject(self, callback_string, obj_id, subject):
     self.reminder.reminder_type = callback_string
@@ -138,7 +140,9 @@ class _ReminderOverlay(urwid.WidgetWrap):
       urwid.connect_signal(in_selector, 'select', self.signal_handler)
       self.holder.original_widget = in_selector
     elif category == 'at':
-      pass
+      at_selector = AtSelector()
+      urwid.connect_signal(at_selector, 'select', self.signal_handler)
+      self.holder.original_widget = at_selector
     elif category == 'on':
       on_selector = OnSelector()
       urwid.connect_signal(on_selector, 'select', self.signal_handler)
@@ -193,11 +197,11 @@ class _ReminderOverlay(urwid.WidgetWrap):
     hours = hours%24
 
     if days > 0:
-      self.reminder.in_days = days
+      self.reminder.repeat_days = days
       if days > 1: delta_string = [delta_string, str(days), ' days']
       else: delta_string = [delta_string, str(days), ' day']
     if hours > 0:
-      self.reminder.in_hours = hours 
+      self.reminder.repeat_hours = hours 
       if days > 0: delta_string = [delta_string, ', ']
       if hours > 1: delta_string = [delta_string, str(hours), ' hours']
       else: delta_string = [delta_string, str(hours), ' hour']
@@ -215,6 +219,10 @@ class _ReminderOverlay(urwid.WidgetWrap):
     if starting == 'today':
       self.header_text = [self.header_text, ' ', (urwid.AttrSpec('h166', ''), 'today')] 
       self.header_text = [self.header_text, ' ', (urwid.AttrSpec('h85', ''), 'at')]  
+      self.reminder.month = datetime.now().month
+      at_selector = AtSelector()
+      urwid.connect_signal(at_selector, 'select', self.signal_handler)
+      self.holder.original_widget = at_selector
     elif starting == 'on':
       self.header_text = [self.header_text, ' ', (urwid.AttrSpec('h85', ''), 'on')]  
       on_selector = OnSelector()
@@ -241,8 +249,42 @@ class _ReminderOverlay(urwid.WidgetWrap):
     date = datetime.strptime(str(year) + month + day, '%Y%m%d').date().strftime('%m-%d-%Y')
     self.header_text = [self.header_text, ' ', (urwid.AttrSpec('h166', ''), date)]
     self.header_text = [self.header_text, ' ', (urwid.AttrSpec('h85', ''), 'at')]  
+    
+    at_selector = AtSelector()
+    urwid.connect_signal(at_selector, 'select', self.signal_handler)
+    self.holder.original_widget = at_selector
 
     self.header.set_text([self.header_text, self.div])
+    self.box_adapter.height = self.get_height()
+
+    self.reminder.year = int(year)
+    self.reminder.month = int(month)
+    self.reminder.day = int(day)
+
+  def set_at_time(self, hour, minute):
+    now = datetime.now().time().replace(second=0, microsecond=0)
+    time = datetime.strptime('19991010 ' + hour + ':' + minute, "%Y%m%d %H:%M").time()
+
+    self.header_text = [self.header_text, ' ', (urwid.AttrSpec('h166', ''), hour + ':' + minute)]
+
+    if not self.reminder.month:
+      if time <= now:
+        self.header_text = [self.header_text, ' ', 'tomorrow']
+        self.reminder.in_days += 1
+      else:
+        self.header_text = [self.header_text, ' ', 'today']
+    self.header_text = [self.header_text, '.']
+
+    self.reminder.hour = int(hour)
+    self.reminder.minute = int(minute)
+
+    self.reminder.build()
+    self.header_text = [self.header_text, '\n', '(', self.reminder.dt_string, ')']
+    self.header.set_text([self.header_text, self.div])
+
+    conf_selector = ConfirmationSelector()
+    urwid.connect_signal(conf_selector, 'select', self.signal_handler)
+    self.holder.original_widget = conf_selector
     self.box_adapter.height = self.get_height()
 
   def get_height(self):
@@ -522,7 +564,7 @@ class OnSelector(urwid.WidgetWrap):
     self.month = urwid.IntEdit(default=now.month)
     self.month = urwid.Padding(self.month, 'right', 2, right=1)
     
-    self.day = urwid.IntEdit(default=now.day)
+    self.day = urwid.IntEdit(default=now.day+1)
     self.day = urwid.Padding(self.day, 'center', 2, left=1, right=1)
 
     self.year = urwid.IntEdit(default=str(now.year)[2:4])
@@ -543,13 +585,8 @@ class OnSelector(urwid.WidgetWrap):
     self.list_box = urwid.ListBox(self.body)
     super().__init__(urwid.Filler(urwid.BoxAdapter(self.list_box, 28)))
 
-  def render(self, size, focus=False):
+  def fix_values(self):
     focus = self.input_columns.focus.base_widget
-    if len(focus.edit_text.lstrip('0')) == 0:
-      focus.edit_text = '00'
-    elif len(focus.edit_text.lstrip('0')) == 1:
-      focus.edit_text = '0' + focus.edit_text.lstrip('0')
-
     now = datetime.now()
     year = 0
     if int(str(now.year)[2:4]) > int(self.year.base_widget.edit_text):
@@ -562,11 +599,16 @@ class OnSelector(urwid.WidgetWrap):
       if widget.base_widget != focus:
         if widget == self.month:
           if int(self.month.base_widget.edit_text) > 12: self.month.base_widget.edit_text = '12'
+          elif int(self.month.base_widget.edit_text) < now.month and year == now.year:
+            self.month.base_widget.edit_text = str(now.month)
         if widget == self.day:
           try:
             max_days = monthrange(year, int(self.month.base_widget.edit_text))[1]
             if int(self.day.base_widget.edit_text) > max_days: 
               self.day.base_widget.edit_text = str(max_days)
+            elif int(self.day.base_widget.edit_text) < now.day + 1:
+              if int(self.month.base_widget.edit_text) == now.month and year == now.year:
+                self.day.base_widget.edit_text = str(now.day + 1)
           except IllegalMonthError:
             pass
         if widget != self.year:
@@ -575,10 +617,18 @@ class OnSelector(urwid.WidgetWrap):
               widget.base_widget.edit_text = '01'
           except AttributeError:
             pass
+      try:
+        if widget.base_widget.edit_pos != 1:
+          widget.base_widget.edit_pos = 1
+        if len(widget.base_widget.edit_text.lstrip('0')) == 0:
+          widget.base_widget.edit_text = '00'
+        elif len(widget.base_widget.edit_text.lstrip('0')) == 1:
+          widget.base_widget.edit_text = '0' + widget.base_widget.edit_text.lstrip('0')
+      except AttributeError:
+        pass
 
-    if focus.edit_pos != 1:
-      focus.edit_pos = 1
-
+  def render(self, size, focus=False):
+    self.fix_values()
     return super().render(size, focus)
 
   def keypress(self, size, key):
@@ -599,11 +649,91 @@ class OnSelector(urwid.WidgetWrap):
       else: return super().keypress(size, key)
     elif key == 'delete':
       return super().keypress(size, key)
-    elif key == ' ' or key == 'return':
+    elif key == ' ' or key == 'enter':
+      self.input_columns.focus_position = 1
+      self.fix_values()
       month = self.month.base_widget.edit_text
       day = self.day.base_widget.edit_text
       year = self.year.base_widget.edit_text
       self._emit('select', ['on', year, month, day])
+    elif len(focus.edit_text.lstrip('0')) < 2:
+      focus.set_edit_text(focus.edit_text.lstrip('0'))
+      return super().keypress(size, key)
+
+  def get_height(self):
+    return 2 
+
+class AtSelector(urwid.WidgetWrap):
+
+  signals = ['select']
+  def __init__(self):
+    now = datetime.now().time()
+    spacer = urwid.Text(':')
+    self.hour = urwid.IntEdit(default=now.hour)
+    self.hour = urwid.Padding(self.hour, 'right', 'pack', right=1)
+
+    self.min = urwid.IntEdit(default=now.minute+1)
+    self.min = urwid.Padding(self.min, 'left', 2, left=1)
+
+    self.input_columns = urwid.Columns([self.hour,
+                                        (1, spacer),
+                                        self.min])
+
+    self.hh = urwid.Text('HH ', 'right')
+    self.mm = urwid.Text(' MM', 'left')
+    self.guide_columns = urwid.Columns([self.hh, self.mm], 1)
+
+    self.body = urwid.SimpleListWalker([self.input_columns, self.guide_columns])
+    self.list_box = urwid.ListBox(self.body)
+    super().__init__(urwid.Filler(urwid.BoxAdapter(self.list_box, 28)))
+
+  def fix_values(self):
+    focus = self.input_columns.focus.base_widget
+    for widget_tup in self.input_columns.contents:
+      widget = widget_tup[0]
+      if widget.base_widget != focus:
+        if widget == self.hour:
+          if int(self.hour.base_widget.edit_text) > 23: self.hour.base_widget.edit_text = '23'
+        if widget == self.min:
+          if int(self.min.base_widget.edit_text) > 59: self.min.base_widget.edit_text = '59'
+      try:
+        if widget.base_widget.edit_pos != 1:
+          widget.base_widget.edit_pos = 1
+        if len(widget.base_widget.edit_text.lstrip('0')) == 0:
+          widget.base_widget.edit_text = '00'
+        elif len(widget.base_widget.edit_text.lstrip('0')) == 1:
+          widget.base_widget.edit_text = '0' + widget.base_widget.edit_text.lstrip('0')
+      except AttributeError:
+        pass
+    
+  def render(self, size, focus=False):
+    self.fix_values()
+    return super().render(size, focus)
+    
+  def keypress(self, size, key):
+    focus = self.input_columns.focus.base_widget
+    if key == 'l' or key == 'right':
+      try:
+        self.input_columns.focus_position += 2
+      except IndexError:
+        pass
+    elif key == 'h' or key == 'left':
+      try:
+        self.input_columns.focus_position -= 2
+      except IndexError:
+        pass
+    elif key == 'backspace':
+      if focus.edit_pos == 1 and len(focus.edit_text) == 2:
+        return super().keypress(size, 'delete')
+      else: return super().keypress(size, key)
+    elif key == 'delete':
+      return super().keypress(size, key)
+    elif key == ' ' or key == 'enter':
+      self.input_columns.focus_position = 1
+      self.fix_values()
+      hour = self.hour.base_widget.edit_text
+      minute = self.min.base_widget.edit_text
+      self._emit('select', ['at', hour, minute])
     elif len(focus.edit_text.lstrip('0')) < 2:
       focus.set_edit_text(focus.edit_text.lstrip('0'))
       return super().keypress(size, key)

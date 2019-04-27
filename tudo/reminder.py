@@ -8,13 +8,14 @@ class Reminder():
     self.reminder_id = []
     # If not repeat alarm deletes itself after going off
     self.repeat = False
-    self.repeat_freq = None
+    self.repeat_hours = None
+    self.repeat_days = None
     # Date building variables
-    self.year = None
-    self.month = None
-    self.day = None
-    self.hour = None
-    self.minute = None
+    self.year = -1 
+    self.month = -1
+    self.day = -1
+    self.hour = -1
+    self.minute = -1
     # Delta variables
     self.in_days = 0
     self.in_hours = 0
@@ -29,11 +30,11 @@ class Reminder():
 
   def _format_string(self):
     now = datetime.now()
-    if not self.year: self.year = now.year
-    if not self.month: self.month = now.month
-    if not self.day: self.day = now.day
-    if not self.hour: self.hour = now.hour
-    if not self.minute: self.minute = now.minute
+    if self.year == -1: self.year = now.year
+    if self.month == -1: self.month = now.month
+    if self.day == -1: self.day = now.day
+    if self.hour == -1: self.hour = now.hour
+    if self.minute == -1: self.minute = now.minute
     dt_obj = datetime(self.year, self.month, self.day, self.hour, self.minute)
     dt_obj = dt_obj + timedelta(
         days=self.in_days,
