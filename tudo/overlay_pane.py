@@ -220,7 +220,7 @@ class _ReminderOverlay(urwid.WidgetWrap):
       self.header_text = [self.header_text, ' ', (urwid.AttrSpec('h166', ''), 'today')] 
       self.header_text = [self.header_text, ' ', (urwid.AttrSpec('h85', ''), 'at')]  
       self.reminder.month = datetime.now().month
-      at_selector = AtSelector()
+      at_selector = AtSelector(is_today=True)
       urwid.connect_signal(at_selector, 'select', self.signal_handler)
       self.holder.original_widget = at_selector
     elif starting == 'on':
@@ -229,6 +229,8 @@ class _ReminderOverlay(urwid.WidgetWrap):
       urwid.connect_signal(on_selector, 'select', self.signal_handler)
       self.holder.original_widget = on_selector
     elif starting == 'now':
+      self.reminder.in_days = self.reminder.repeat_days
+      self.reminder.in_hours = self.reminder.repeat_hours
       self.reminder.build()
       self.header_text = [self.header_text, ' ', (urwid.AttrSpec('h166', ''), 'now.')]  
       self.header_text = [self.header_text, '\n', '(', self.reminder.dt_string, ')']
@@ -477,9 +479,9 @@ class EverySelector(urwid.WidgetWrap):
 
   signals=['select']
   def __init__(self):
-    self.hours_edit = urwid.IntEdit('  Hour(s): ')
+    self.hours_edit = urwid.IntEdit('Hour(s): ')
 
-    super().__init__(urwid.Filler(self.hours_edit))
+    super().__init__(urwid.Filler(urwid.Padding(self.hours_edit, 'center', 11)))
 
   def get_height(self):
     return 1 
@@ -494,21 +496,27 @@ class EverySelector(urwid.WidgetWrap):
         pass
     elif key == 'l' or key == 'right':
       try:
-        self.horus_edit.edit_pos += 1
+        self.hours_edit.edit_pos += 1
       except IndexError:
         pass
-    else: 
-      if self.hours_edit.valid_char(key) and self.hours_edit.edit_text == '0':
-        self.hours_edit.set_edit_text('')
-      if key == 'backspace' or key == 'delete': return super().keypress(size, key)
-      else: 
-        num_length = len(self.hours_edit.edit_text)
-        if num_length < 3: return super().keypress(size, key)
+    elif key == 'backspace':
+      if self.hours_edit.edit_pos == 1 and len(self.hours_edit.edit_text) == 2:
+        return super().keypress(size, 'delete')
+      else: return super().keypress(size, key)
+    elif key == 'delete':
+      return super().keypress(size, key)
+    elif len(self.hours_edit.edit_text.lstrip('0')) < 2:
+      self.hours_edit.set_edit_text(self.hours_edit.edit_text.lstrip('0'))
+      return super().keypress(size, key)
 
 
   def render(self, size, focus=False):
-    if self.hours_edit.edit_text == '':
-      self.hours_edit.set_edit_text('0')
+    if len(self.hours_edit.edit_text.lstrip('0')) == 0:
+      self.hours_edit.edit_text = '00'
+    elif len(self.hours_edit.edit_text.lstrip('0')) == 1:
+      self.hours_edit.edit_text = '0' + self.hours_edit.edit_text.lstrip('0')
+    if self.hours_edit.edit_pos != 1:
+      self.hours_edit.edit_pos = 1
     return super().render(size, focus)
 
 class StartingSelector(urwid.WidgetWrap):
@@ -666,7 +674,8 @@ class OnSelector(urwid.WidgetWrap):
 class AtSelector(urwid.WidgetWrap):
 
   signals = ['select']
-  def __init__(self):
+  def __init__(self, is_today=False):
+    self.is_today = is_today
     now = datetime.now().time()
     spacer = urwid.Text(':')
     self.hour = urwid.IntEdit(default=now.hour)
@@ -688,14 +697,20 @@ class AtSelector(urwid.WidgetWrap):
     super().__init__(urwid.Filler(urwid.BoxAdapter(self.list_box, 28)))
 
   def fix_values(self):
+    now = datetime.now().time()
     focus = self.input_columns.focus.base_widget
     for widget_tup in self.input_columns.contents:
       widget = widget_tup[0]
       if widget.base_widget != focus:
         if widget == self.hour:
           if int(self.hour.base_widget.edit_text) > 23: self.hour.base_widget.edit_text = '23'
+          elif int(self.hour.base_widget.edit_text) < now.hour and self.is_today:
+            self.hour.base_widget.edit_text = str(now.hour)
         if widget == self.min:
           if int(self.min.base_widget.edit_text) > 59: self.min.base_widget.edit_text = '59'
+          elif int(self.min.base_widget.edit_text) < now.minute+1 and self.is_today:
+            if int(self.hour.base_widget.edit_text) == now.hour:
+              self.min.base_widget.edit_text = str(now.minute+1)
       try:
         if widget.base_widget.edit_pos != 1:
           widget.base_widget.edit_pos = 1
