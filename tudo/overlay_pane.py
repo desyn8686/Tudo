@@ -265,8 +265,6 @@ class _ReminderOverlay(urwid.WidgetWrap):
 
   def set_at_time(self, hour, minute):
     now = datetime.now().time().replace(second=0, microsecond=0)
-    time = datetime.strptime('19991010 ' + hour + ':' + minute, "%Y%m%d %H:%M").time()
-
     self.header_text = [self.header_text, ' ', (urwid.AttrSpec('h166', ''), hour + ':' + minute)]
 
     if not self.reminder.month:
@@ -597,10 +595,13 @@ class OnSelector(urwid.WidgetWrap):
     focus = self.input_columns.focus.base_widget
     now = datetime.now()
     year = 0
-    if int(str(now.year)[2:4]) > int(self.year.base_widget.edit_text):
-      year = int(str(now.year + 100)[0:2] + self.year.base_widget.edit_text) 
-    else: 
-      year = int(str(now.year)[0:2] + self.year.base_widget.edit_text) 
+    try:
+      if int(str(now.year)[2:4]) > int(self.year.base_widget.edit_text):
+        year = int(str(now.year + 100)[0:2] + self.year.base_widget.edit_text) 
+      else: 
+        year = int(str(now.year)[0:2] + self.year.base_widget.edit_text) 
+    except ValueError:
+      pass
 
     for widget_tup in self.input_columns.contents:
       widget = widget_tup[0]
