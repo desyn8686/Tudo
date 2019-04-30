@@ -5,7 +5,7 @@ HOME = os.path.expanduser('~')
 BASE_DIR = HOME + '/.local/share/tudo/'
 
 LIST_PATH = BASE_DIR + 'lists/'
-ALARM_PATH = BASE_DIR + 'alarms/'
+ALARM_PATH = BASE_DIR + 'reminders/'
 
 INSTALL_DIRS = [LIST_PATH,
         ALARM_PATH]

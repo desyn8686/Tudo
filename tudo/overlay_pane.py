@@ -22,11 +22,15 @@ class OverlayPane(urwid.WidgetWrap):
       self.holder.original_widget = save_overlay
     elif overlay == 'reminder':
       reminder_overlay = _ReminderOverlay(self.manager)
+      urwid.connect_signal(reminder_overlay, 'close', self.reminder_callback)
       self.holder.original_widget = reminder_overlay
 
   def save_callback(self, obj, arg):
-      self.set_overlay(None)
-      self._emit('save', arg)
+    self.set_overlay(None)
+    self._emit('save', arg)
+
+  def reminder_callback(self, obj):
+    self.set_overlay(None)
 
   def keypress(self, size, key):
     if not self.manager.is_editing():
@@ -65,6 +69,7 @@ class _SaveOverlay(urwid.WidgetWrap):
 
 class _ReminderOverlay(urwid.WidgetWrap):
 
+  signals = ['close']
   def __init__(self, manager):
     self.reminder = Reminder() 
     self.manager = manager
@@ -104,6 +109,10 @@ class _ReminderOverlay(urwid.WidgetWrap):
       self.set_on_date(args[1], args[2], args[3])
     elif args[0] == 'at':
       self.set_at_time(args[1], args[2])
+    elif args[0] == 'confirmation':
+      if args[1] == 'yes':
+        self.reminder.write()
+        self._emit('close')
 
   def set_subject(self, callback_string, obj_id, subject):
     self.reminder.reminder_type = callback_string
@@ -471,7 +480,7 @@ class ConfirmationSelector(urwid.WidgetWrap):
       except IndexError:
         pass
     elif key == 'enter' or key == ' ':
-      pass
+      self._emit('select', ['confirmation', self.columns.focus.base_widget.text])
       
 class EverySelector(urwid.WidgetWrap):
 
