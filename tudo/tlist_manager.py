@@ -82,7 +82,7 @@ class TListManager(urwid.WidgetWrap):
     if obj_type == "task":
       return tlist.get_focus().tag.get_text(), [tlist.id, tlist.get_focus().id]
     elif obj_type == 'list':
-      return tlist.name, tlist.id
+      return tlist.name, [tlist.id]
     elif obj_type == 'group':
       group = tlist.group
       group_list = []
