@@ -53,6 +53,9 @@ class Reminder():
     filename = self.PATH + self.name_hex + '.rmd'
     with open(filename, 'w', encoding='utf-8') as f:
       f.write('dt_string.' + self.dt_string + '\n')
+      if self.reminder_type == 'group' and len(self.reminder_id) == 1:
+        self.reminder_type = 'list'
+      f.write('hex.' + self.name_hex + '\n')
       f.write('type.' + self.reminder_type + '\n')
       first = True
       f.write('idlist.')
