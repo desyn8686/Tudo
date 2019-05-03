@@ -54,6 +54,7 @@ Now you have a copy of my project!
 
 #### Dealing with dependencies
 I'll start by assuming you have Python3 on your machine. Linux loves Python, and its rare to find a repo that doesn't come with some version of both Python2 and Python3. But, just in case it is an issue:
+
 #### Check if you have Python3 installed:
 ```
 python3 --version
@@ -76,6 +77,7 @@ sudo yum install python3
 Now that we have Python3, we need to make sure we have Pip3!
 Pip is the installer for Python packages, and it stands (recursively) for 'Pip installs packages.'
 You MOST LIKELY received Pip3 with your Python3 binary, but this isn't a guarantee, so lets make sure we have it installed!
+
 #### Check if you have Pip3 installed:
 ```
 pip3 --version
@@ -108,6 +110,7 @@ pip3 install urwid --user
 Warning - Do NOT user sudo with Pip.
 That should satisy all our dependency needs!
 
+
 #### Running install script
 First thing we have to do, before booting up Tudo, is to set up the folders that Tudo is going to use to store and recall your lists and reminders. Thankfully I set up a quick script for that! 
 All you need to do is run this command from within the Tudo repository base folder:
@@ -116,13 +119,14 @@ python3 tudo-install.py
 ```
 If you see any errors it is because a folder it tried to create already exists... which I don't anticipate to happen to any of you.
 
+
 #### Starting reminder daemon
 You'll see three **.py** files in the base directory of the repository.
-tudo-install.py <-- we already ran this one
-tudo-edit.py    <-- this opens the main program
-reminderd.py    <-- this is the reminder daemon script
+tudo-install.py <-- we already ran this one. It set up our folders.
+tudo-edit.py    <-- this opens the main program. We'll get to that.
+reminderd.py    <-- this is the reminder daemon script.
 
-If you wish to try out the reminder feature, you'll need to have the reminder daemon running in the background. A daemon is nothing other than a program (process) that runs in the background, and as we have learned this semester that are MANY daemons running on your machine that provide a wide variety of functionality for your system. This one is my daemon.
+If you wish to try out the reminder feature, you'll need to have the reminder daemon running in the background. A daemon is nothing other than a program (process) that runs in the background, and as we have learned this semester that are MANY daemons running on your machine that provide a wide variety of functionality for your system. This daemon is my daemon, and I lost some sleep over getting it to work properly. It is still a bit buggy!
 
 To start up the reminder daemon in the background:
 ```
@@ -142,4 +146,44 @@ kill <PID of reminder daemon>
 
 note - Again, all of this relies on your having a mail service running on your machine! This is not overly difficult to do, and many distros come with a service already installed. If you want to test the reminder function, and you do not have a mail service running, find a quick tutorial on how to set up **postfix** and **mailx** as they are very popular and well supported. Also feel free to ask me any questions, as I had to set up my own for this project!
 
-#### Using Tudo Editor
+#### Using the Tudo Editor
+This is what we came here for! This is the main editor/manager for all your future todo-lists.
+
+To get it started, all we need to do is:
+```
+python3 tudo-edit.py
+```
+
+You should now see a screen that looks like this:
+![Image](/misc/empty_manager.png "A fresh start with Tudo")
+
+Your colors probably won't look like this, and some of them may be hard to read.
+This is a necessary future fix, and is on the list! Moving on:
+
+Almost all of the keybinds in tudo are a single key, or Shift-key. 
+It is telling you to push the 'N' (shift-n) key to create a new list.
+
+Now you'll have one brand new list on the screen. From here, I'll just leave you with a list of keybinds.
+Thank you for trying out Tudo, and if you have any questions, respond in the project forum and I can try to help you out!
+
+#### Keybinds
+
+##### Insert mode
+In insert mode, keystrokes are sent through to edit the selected text. Hitting <Enter> or <Esc> will return the user to
+command mode.
+
+##### Command mode
+By default, the Tudo editor opens in command mode. In command mode, keystrokes are used to issue commands to the editor.
+
+**N** - Create new list. List is initialized with the name 'untitled' and belonging to the group 'none.'
+
+**n** - Edit list name. Cursor will move to the name of the list, which will be highlighted. Hitting <Enter> will commit the
+    name change, while <Esc> will cancel changes.
+       
+**g** - Edit group name. Cursor will move to the name of the group, which will be highlighted. Hitting <Enter> will commit
+        the group change, while <Esc> will cancel changes.
+      
+**t** - Create empty task. Cursor will move to new task, and editor will enter insert mode.
+
+**T** - Create empty subtask under focused task. Cursor will move to new task, and editor will enter insert mode.
+
