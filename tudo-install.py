@@ -14,7 +14,6 @@ def install():
   create_dirs()
 
 def create_dirs():
-
   for DIR in INSTALL_DIRS:
     try:
       os.makedirs(DIR)
