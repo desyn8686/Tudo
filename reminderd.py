@@ -6,11 +6,12 @@ import os, threading, time
 import smtplib
 import getpass
 
-HOME = os.path.expanduser('~')
-ALARM_DIR = '/.local/share/tudo/reminders/'
-PATH = HOME + ALARM_DIR
 
 class ReminderD():
+
+  HOME = os.path.expanduser('~')
+  ALARM_DIR = '/.local/share/tudo/reminders/'
+  PATH = HOME + ALARM_DIR
 
   reminders = []
   num_reminders = 0 
@@ -24,23 +25,23 @@ class ReminderD():
 
   def count_reminders(self):
     reminders = 0
-    for f_name in os.listdir(PATH):
+    for f_name in os.listdir(self.PATH):
       if '.rmd' in f_name:
         reminders += 1
     return reminders
 
   def check_reminders(self):
-    for f_name in os.listdir(PATH):
+    for f_name in os.listdir(self.PATH):
       if f_name not in self.reminders:
         if '.rmd' in f_name:
-          self.reminders.append(f_name.rstrip('.rmd'))
+          self.reminders.append(f_name)
           parse_thread = threading.Thread(target=self.parse, args=[f_name])
           parse_thread.setDaemon(True)
           parse_thread.start()
         
   def parse(self, f_name):
     reminder_data = {}
-    with open(PATH + f_name) as f:
+    with open(self.PATH + f_name) as f:
       for line in f:
         line = line.rstrip('\n')
         line = line.split('.')    
@@ -162,9 +163,9 @@ Subject: %s
     server.quit()
 
   def cleanup(self, data_dict):
+    now = datetime.now()
     if data_dict['repeat'] == 'True': 
-      now = datetime.now()
-      dt_obj = datetime.strptime(data_dict['dt_string'])
+      dt_obj = datetime.strptime(data_dict['dt_string'], '%Y-%m-%d %H:%M')
       while now > dt_obj:
         dt_obj = dt_obj + timedelta(days=int(data_dict['rdays']), hours=int(data_dict['rhours']))
       data_dict['dt_string'] = dt_obj.strftime('%Y-%m-%d %H:%M')
@@ -181,9 +182,11 @@ Subject: %s
       self.reminders.remove(data_dict['hex'])
       self.check_reminders()
     else:
-      self.reminders.remove(data_dict['hex'])
-      if os.path.exists(PATH + data_dict['hex'] + '.rmd'):
-        os.remove(PATH + data_dict['hex'] + '.rmd')
+      if os.path.exists(self.PATH + data_dict['hex'] + '.rmd'):
+        print('deleting file ' + data_dict['hex'])
+        os.remove(self.PATH + data_dict['hex'] + '.rmd')
+      self.reminders.remove(data_dict['hex'] + '.rmd')
+      print('removing from list ' + data_dict['hex'])
 
 if __name__ == '__main__':
   ReminderD().start()
