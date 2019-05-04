@@ -107,7 +107,7 @@ If you run into an error here, try this instead:
 ```
 pip3 install urwid --user
 ```
-Warning - Do NOT user sudo with Pip.
+Warning - Do NOT user sudo with Pip.  
 That should satisy all our dependency needs!
 
 
