@@ -121,10 +121,10 @@ If you see any errors it is because a folder it tried to create already exists..
 
 
 #### Starting reminder daemon
-You'll see three **.py** files in the base directory of the repository.
-tudo-install.py <-- we already ran this one. It set up our folders.
-tudo-edit.py    <-- this opens the main program. We'll get to that.
-reminderd.py    <-- this is the reminder daemon script.
+You'll see three **.py** files in the base directory of the repository.  
+tudo-install.py <-- we already ran this one. It set up our folders.  
+tudo-edit.py    <-- this opens the main program. We'll get to that.  
+reminderd.py    <-- this is the reminder daemon script.  
 
 If you wish to try out the reminder feature, you'll need to have the reminder daemon running in the background. A daemon is nothing other than a program (process) that runs in the background, and as we have learned this semester that are MANY daemons running on your machine that provide a wide variety of functionality for your system. This daemon is my daemon, and I lost some sleep over getting it to work properly. It is still a bit buggy!
 
@@ -158,9 +158,9 @@ You should now see a screen that looks something like this:
 ![Image](/misc/empty_manager.png "A fresh start with Tudo")
 
 
-Now you'll have one brand new list on the screen. The screen can only show four lists at a time,
-but the screen can also scroll to the left or right. From here, I'll leave you with a list of keybinds.
-Thank you for trying out Tudo, and if you have any questions, respond in the project forum and I can try to help you out!
+Now you'll have one brand new list on the screen. The screen can only show four lists at a time,  
+but the screen can also scroll to the left or right. From here, I'll leave you with a list of keybinds.  
+Thank you for trying out Tudo, and if you have any questions, respond in the project forum and I can try to help you out!  
 
 #### Keybinds
 
