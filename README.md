@@ -26,7 +26,7 @@ Tudo is still in a rough state, but usable! I use it every day to organize my li
 
 ### Installing Tudo
 
-First thing you need to do is pull down a copy of this repo. This can be done a couple of ways, but I would reccomend installing **git**(most Linux distros come with git installed since it was created by Linus Torvalds himself).
+First thing you need to do is pull down a copy of this repo. This can be done a couple of ways, but I would reccomend installing **git** (most Linux distros come with git installed since it was created by Linus Torvalds himself).
 ### Check if you have git installed:
 ```
 git --version
@@ -53,7 +53,7 @@ git clone https://github.com/e-mo/Tudo.git
 Now you have a copy of my project!
 
 #### Dealing with dependencies
-I'll start by assuming you have Python3 on your machine. Linux loves Python, and its rare to find a repo that doesn't come with some version of both Python2 and Python3. But, just in case it is an issue:
+I'll start by assuming you have Python3 on your machine. Linux loves Python, and its rare to find a distro that doesn't come with some version of both Python2 and Python3. But, just in case it is an issue:
 
 #### Check if you have Python3 installed:
 ```
