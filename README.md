@@ -227,6 +227,8 @@ The reminder menu first asks you what you are trying to set a reminder for.
 
 Standard navigation keys are used to move through these menus, and 'space' or 'enter' confirms an entry.
 Play around with the reminder overlay. I think you'll find it to be rather intuitive. 
+
+Reminders are sent to your user inbox and can be accessed from the command line or wherever you have your local mail forwarded.
        
 
 Thats it for Tudo! Hopefully you got it working, and I hope you can put it to good use!
