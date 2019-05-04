@@ -165,7 +165,7 @@ Thank you for trying out Tudo, and if you have any questions, respond in the pro
 #### Keybinds
 
 ##### Insert mode
-In insert mode, keystrokes are sent through to edit the selected text. Hitting <Enter> or <Esc> will return the user to
+In insert mode, keystrokes are sent through to edit the selected text. Hitting 'enter' or 'esc' will return the user to
 command mode.
 
 ##### Command mode
@@ -189,7 +189,7 @@ By default, the Tudo editor opens in command mode. In command mode, keystrokes a
 
 **J** - Move focused task down one place in list.
 
-**q** - Exit Tudo editor. <Ctrl-c> also works.
+**q** - Exit Tudo editor. 'ctrl-c' also works.
        
 ###### List manipulation
 
@@ -197,11 +197,11 @@ By default, the Tudo editor opens in command mode. In command mode, keystrokes a
 
 **N** - Create new list. List is initialized with the name 'untitled' and belonging to the group 'none.'
 
-**n** - Edit list name. Cursor will move to the name of the list, which will be highlighted. Hitting <Enter> will commit the
-        name change, while <Esc> will cancel changes.
+**n** - Edit list name. Cursor will move to the name of the list, which will be highlighted. Hitting 'enter' will commit the
+        name change, while 'esc' will cancel changes.
        
-**g** - Edit group name. Cursor will move to the name of the group, which will be highlighted. Hitting <Enter> will commit
-        the group change, while <Esc> will cancel changes.
+**g** - Edit group name. Cursor will move to the name of the group, which will be highlighted. Hitting 'enter' will commit
+        the group change, while 'esc' will cancel changes.
       
 **t** - Create empty task. Cursor will move to new task, and editor will enter insert mode.
 
@@ -229,7 +229,7 @@ Task: The currently focused task.
 List: The currently focused list.
 group: The currently focused group.
 
-Standard navigation keys are used to move through these menus, and <space> or <enter> confirms an entry.
+Standard navigation keys are used to move through these menus, and 'space' or 'enter' confirms an entry.
 Play around with the reminder overlay. I think you'll find it to be rather intuitive. 
        
 
