@@ -17,7 +17,7 @@ class Task(WidgetWrap):
       self.new_task = True
       self.task_data = {}
       self.id = uuid.uuid4().hex
-      self.task_data['tag'] = 'o<empty tag>' 
+      self.task_data['tag'] = 'o<empty task>' 
       self.task_data['expan'] = []
     else:
       self.id = self.task_data['id']

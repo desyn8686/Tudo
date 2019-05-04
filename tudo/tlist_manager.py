@@ -54,12 +54,12 @@ class TListManager(urwid.WidgetWrap):
 
   def keypress(self, size, key):
     holder = self.columns.focus
-    if holder.deleting:
-      return super().keypress(size, key)
-    elif self.empty:
+    if self.empty:
       if key == 'N':      
         self.build_new()
       return
+    elif holder.deleting:
+      return super().keypress(size, key)
     elif holder.tlist.is_editing:
       return super().keypress(size, key)
     else:
@@ -75,7 +75,10 @@ class TListManager(urwid.WidgetWrap):
 
   def is_editing(self):
     holder = self.columns.focus
-    return holder.tlist.is_editing
+    try:
+      return holder.tlist.is_editing
+    except AttributeError:
+      return False
 
   def get_focus(self, obj_type):
     tlist = self.columns.focus.tlist
