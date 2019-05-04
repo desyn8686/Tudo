@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # tudo-alarm.py
 from datetime import datetime, timedelta
 from tudo.reminder import Reminder
@@ -18,7 +19,7 @@ class ReminderD():
 
   def start(self):
     while True:
-      if self.count_reminders != self.num_reminders:
+      if self.count_reminders() > self.num_reminders:
         self.check_reminders()
         self.num_reminders = self.count_reminders()
       time.sleep(60)
@@ -144,9 +145,15 @@ class ReminderD():
     return(message)
 
   def send(self, reminder): 
+    with open('/home/emorse/Projects/Tudo/help.log', 'a') as f:
+      f.write('sending\n') 
     SERVER = 'localhost'
     FROM = 'tudo'
+    with open('/home/emorse/Projects/Tudo/help.log', 'a') as f:
+      f.write('getting user\n') 
     TO = [getpass.getuser()]
+    with open('/home/emorse/Projects/Tudo/help.log', 'a') as f:
+      f.write('got user\n') 
 
     SUBJECT = 'A REMINDER!'
     TEXT = reminder
@@ -158,7 +165,14 @@ Subject: %s
 
 %s
 ''' %(FROM, ", ".join(TO), SUBJECT, TEXT)
-    server = smtplib.SMTP(SERVER)
+
+    while True:
+      try:
+        server = smtplib.SMTP(SERVER)
+        break
+      except:
+        time.sleep(10)
+
     server.sendmail(FROM, TO, message)
     server.quit()
 
@@ -179,14 +193,12 @@ Subject: %s
       reminder.repeat_hours = data_dict['rhours']
       reminder.dt_string = data_dict['dt_string']
       reminder.write()
-      self.reminders.remove(data_dict['hex'])
+      self.reminders.remove(data_dict['hex'] + '.rmd')
       self.check_reminders()
     else:
       if os.path.exists(self.PATH + data_dict['hex'] + '.rmd'):
-        print('deleting file ' + data_dict['hex'])
         os.remove(self.PATH + data_dict['hex'] + '.rmd')
       self.reminders.remove(data_dict['hex'] + '.rmd')
-      print('removing from list ' + data_dict['hex'])
 
 if __name__ == '__main__':
   ReminderD().start()
