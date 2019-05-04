@@ -225,10 +225,6 @@ By default, the Tudo editor opens in command mode. In command mode, keystrokes a
 
 The reminder menu first asks you what you are trying to set a reminder for.
 
-Task: The currently focused task.
-List: The currently focused list.
-group: The currently focused group.
-
 Standard navigation keys are used to move through these menus, and 'space' or 'enter' confirms an entry.
 Play around with the reminder overlay. I think you'll find it to be rather intuitive. 
        
